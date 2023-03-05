@@ -1,0 +1,44 @@
+#canvas_wrapper {
+  position: relative;
+  height: 700px;
+  width: 400px;
+}
+
+#viewport {
+    margin: auto;
+    position: absolute;
+    border: 1px solid black;
+    height: 700px;
+    width: 400px;
+}
+
+#buttonWrapper {
+  position: absolute;
+  width: 30px;
+  top: 2px;
+  right: 2px;
+}
+
+input[type =
+"button"] {
+  padding: 5px;
+  width: 30px;
+  margin: 0px 0px 2px 0px;
+}
+
+#cardsDisplay {
+    position: relative;
+    z-index: 3;
+    background-color: whitesmoke;
+
+    min-height: 210px;
+    margin-top: 1%;
+
+    border: 5px dashed teal;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    overflow-x: auto;
+}

@@ -1,0 +1,57 @@
+.imageCard {
+    margin: 20px;
+    position: relative;
+
+    min-height: 100px;
+    max-height: 200px;
+
+    min-width: 200px;
+    max-width: 250px;
+
+    background-size: cover;
+    display: inline-block;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    box-shadow: 5px 2px 1px grey;
+}
+
+.imageCard:hover {
+    cursor: pointer;
+}
+
+.rightSwap {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 20%;
+    color: white;
+
+}
+
+.imageCardTitle {
+    size: 16pt;
+    text-align: left;
+    text-decoration: solid;
+
+    overflow: hidden;
+    color: aliceblue;
+    text-shadow: 1px 1px grey;
+
+    z-index: top;
+}
+
+.removeButton {
+    position: absolute;
+    top: 5px;
+    right: 5pt;
+}
+
+.removeBackground {
+    position: absolute;
+    bottom: 5pt;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+}
