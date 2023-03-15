@@ -6,157 +6,199 @@ import createModule from "./backgroundRemover.mjs";
 import CardsDisplay from "./CardsDisplay";
 
 export default function Dropzone() {
-    const [files, setFiles] = useState([]);
-    const [displayedImage, setDisplayedImage] = useState([]);
-    const [wasmModule, setWasmModule] = useState();
+  const [files, setFiles] = useState([]);
+  const [displayedImage, setDisplayedImage] = useState([]);
+  const [wasmModule, setWasmModule] = useState();
 
-    const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
+  const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
 
-    useEffect(() => {
-        createModule().then((Module) => {
-            setWasmModule(Module);
-            console.log("WASM module loaded!");
+  useEffect(() => {
+    createModule().then((Module) => {
+      setWasmModule(Module);
+      console.log("WASM module loaded!");
+    });
+  }, []);
+
+  // Log changes in files array
+  useEffect(() => {
+    console.log(files);
+  }, [files])
+
+  // File operations
+  function removeFile(file) {
+    var filtered = files.filter(item => item !== file);
+    setFiles(filtered);
+    console.log(files);
+  }
+
+  useEffect(() => {
+    if (!displayedImage) {
+      setDisplayedImage(files[0]);
+      drawImage(displayedImage);
+    }
+  }, [files])
+
+  // File drag-n-drop
+  function dropHandler(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log('File(s) dropped!');
+
+    // Disableing the overlay
+    document.getElementById("overlay").style.display = "none";
+
+    if (ev.dataTransfer.items) {
+      for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+        if (ev.dataTransfer.items[i].kind === 'file') {
+          var newFile = ev.dataTransfer.items[i].getAsFile();
+          if (validateFile(newFile)) {
+            addNewFile({
+              fileObject: newFile,
+              URL: URL.createObjectURL(newFile),
+              bgRemoved: false
+            });
+            console.log('... file[' + i + '].name = ' + newFile.name + ' is added.');
+          } else {
+            //TODO handle errror
+            console.log('file format not supported!');
+          }
+        }
+      }
+    } else {
+      //Preventing text inserts
+      for (var j = 0; j < ev.dataTransfer.files.length; j++) {
+        console.log('... file[' + j + '].name = ' + ev.dataTransfer.files[j].name);
+        console.log('Only files allowed!');
+      }
+    }
+  }
+
+  function dragoverHandler(ev) {
+    console.log('File(s) in drop zone');
+    ev.preventDefault();
+  }
+
+  function dragendHandler(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    document.getElementById("overlay").style.display = "none";
+  }
+
+  function validateFile(file) {
+    return supportedFileTypes.indexOf(file.type) > -1
+  }
+
+  function addNewFile(newFile) {
+    setFiles(files => [...files, newFile]);
+  }
+
+  function uploadButtonHandler(ev) {
+    for (var i = 0; i < ev.target.files.length; i++) {
+      var newFile = ev.target.files[i];
+      if (validateFile(newFile)) {
+        addNewFile({
+          fileObject: newFile,
+          URL: URL.createObjectURL(newFile),
+          bgRemoved: false
         });
-    }, []);
-
-    //Log changes in files array
-    useEffect(() => {
-        console.log(files);
-    }, [files])
-
-    //File operations 
-    function removeFile(file) {
-        var filtered = files.filter(item => item !== file);
-        setFiles(filtered);
-        console.log(files);
+      }
     }
+  }
 
-    useEffect(() => {
-        if (!displayedImage) {
-            setDisplayedImage(files[0]);
-            drawImage(displayedImage);
-        }
-    }, [files])
+  function drawImage(displayedImage) {
+    console.log("clicked");
+    const canvas = document.getElementById("viewport");
+    canvas.width = 400;
+    canvas.height = 700;
+    const ctx = canvas.getContext("2d");
+    const myImage = new Image();
+    myImage.src = files[0].URL;
 
-    //File drag-n-drop
-    function dropHandler(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        console.log('File(s) dropped!');
+    myImage.onload = function() {
+      ctx.imageSmoothingEnabled = false;
+      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
+      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
 
-        //Disableing the overlay
-        document.getElementById("overlay").style.display = "none";
-
-        if (ev.dataTransfer.items) {
-            for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-                if (ev.dataTransfer.items[i].kind === 'file') {
-                    var newFile = ev.dataTransfer.items[i].getAsFile();
-                    if (validateFile(newFile)) {
-                        addNewFile({
-                            fileObject: newFile,
-                            URL: URL.createObjectURL(newFile),
-                            bgRemoved: false
-                        });
-                        console.log('... file[' + i + '].name = ' + newFile.name + ' is added.');
-                    } else {
-                        //TODO handle errror
-                        console.log('file format not supported!');
-                    }
-                }
-            }
-        } else {
-            //Preventing text inserts
-            for (var j = 0; j < ev.dataTransfer.files.length; j++) {
-                console.log('... file[' + j + '].name = ' + ev.dataTransfer.files[j].name);
-                console.log('Only files allowed!');
-            }
-        }
+      ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
+      console.log("Image is drawn");
     }
+    console.log(Image);
+  }
 
-    function dragoverHandler(ev) {
-        console.log('File(s) in drop zone');
-        ev.preventDefault();
-    }
+  async function wasmDemo() {
+    console.log(wasmModule.FS.readdir('./'));
 
-    function dragendHandler(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        document.getElementById("overlay").style.display = "none";
-    }
+  }
 
-    function validateFile(file) {
-        return supportedFileTypes.indexOf(file.type) > -1
-    }
+  function print() {
+    const iframe = document.createElement('iframe');
 
-    function addNewFile(newFile) {
-        setFiles(files => [...files, newFile]);
-    }
+    // Make it hidden
+    iframe.style.height = 0;
+    iframe.style.visibility = 'hidden';
+    iframe.style.width = 0;
 
-    function uploadButtonHandler(ev) {
-        for (var i = 0; i < ev.target.files.length; i++) {
-            var newFile = ev.target.files[i];
-            if (validateFile(newFile)) {
-                addNewFile({
-                    fileObject: newFile,
-                    URL: URL.createObjectURL(newFile),
-                    bgRemoved: false
-                });
-            }
-        }
-    }
+    iframe.setAttribute('srcdoc', '<html><body></body></html>');
 
-    function drawImage(displayedImage) {
-        console.log("clicked");
-        const canvas = document.getElementById("viewport");
-        const ctx = canvas.getContext("2d");
-        const Image = new Image;
-        Image.src = displayedImage.URL;
+    document.body.appendChild(iframe);
 
-        Image.onload = function () {
-            ctx.imageSmoothingEnabled = false;
-            var scale = Math.min(canvas.width / Image.width, canvas.height / Image.height);
-            var x = (canvas.width / 2) - (Image.width / 2) * scale;
-            var y = (canvas.height / 2) - (Image.height / 2) * scale;
+    iframe.addEventListener('load', () => {
+      // Clone the image
+      const image = document.createElement('img');
+      image.src = files[0].URL;
+      image.style.maxWidth = '100%';
+      console.log(image);
 
-            ctx.drawImage(Image, x, y, Image.width * scale, Image.height * scale);
-            console.log("Image is drawn");
-        }
-        console.log(Image);
-    }
+      // Append the image to the iframe's body
+      const body = iframe.contentDocument.body;
+      body.style.textAlign = 'center';
+      body.appendChild(image);
 
-    async function wasmDemo() {
-        console.log(wasmModule.FS.readdir('./'));
+      image.addEventListener('load', () => {
+        // Invoke the print when the image is ready
+        iframe.contentWindow.print();
+      });
 
-    }
+      iframe.contentWindow.addEventListener('afterprint', () => {
+        iframe.parentNode.removeChild(iframe);
+      });
+    });
 
-    return (
-        <div>
-            <div id="canvas_wrapper">
-                <canvas id="viewport"></canvas>
-                <div id="buttonWrapper">
-                    <input type="button" id="plus" value="+" /><input type="button" id="minus" value="-" />
-                </div>
-            </div>
-            <label htmlFor="inputField" className="custom-file-upload">
-                Custom Upload
-            </label>
-            <button onClick={drawImage}>click</button>
-            <img id="source"></img>
-            <input
-                id='inputField'
-                type="file"
-                name="myImage"
-                multiple
-                style={{ display: 'none' }}
-                onChange={(event) => {
-                    uploadButtonHandler(event)
-                }} />
+  }
 
-            <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
-                {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
-                <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles}></CardsDisplay>
-            </div>
+
+
+  return (
+    <div>
+      <div id="canvas_wrapper">
+        <canvas id="viewport" />
+        <div id="buttonWrapper">
+          <input type="button" id="plus" value="+" /><input type="button" id="minus" value="-" />
         </div>
+      </div>
+      <label htmlFor="inputField" className="custom-file-upload">
+        Custom Upload
+        <input
+          id='inputField'
+          type="file"
+          name="myImage"
+          multiple
+          style={{ display: 'none' }}
+          onChange={(event) => {
+            uploadButtonHandler(event)
+          }} />
+      </label>
+      <button type='button' onClick={drawImage}>click</button>
+      <button type='button' onClick={print}>Print</button>
+      <img id="source" alt="main"/>
 
-    )
+
+      <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
+        {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
+        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles}></CardsDisplay>
+      </div>
+    </div>
+
+  )
 }
