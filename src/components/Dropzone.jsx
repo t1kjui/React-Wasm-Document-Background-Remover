@@ -24,6 +24,13 @@ export default function Dropzone() {
         console.log(files);
     }, [files])
 
+    //File operations 
+    function removeFile(file) {
+        var filtered = files.filter(item => item !== file);
+        setFiles(filtered);
+        console.log(files);
+    }
+
     useEffect(() => {
         if (!displayedImage) {
             setDisplayedImage(files[0]);
@@ -36,12 +43,45 @@ export default function Dropzone() {
         ev.preventDefault();
         ev.stopPropagation();
         console.log('File(s) dropped!');
+
+        //Disableing the overlay
+        document.getElementById("overlay").style.display = "none";
+
+        if (ev.dataTransfer.items) {
+            for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+                if (ev.dataTransfer.items[i].kind === 'file') {
+                    var newFile = ev.dataTransfer.items[i].getAsFile();
+                    if (validateFile(newFile)) {
+                        addNewFile({
+                            fileObject: newFile,
+                            URL: URL.createObjectURL(newFile),
+                            bgRemoved: false
+                        });
+                        console.log('... file[' + i + '].name = ' + newFile.name + ' is added.');
+                    } else {
+                        //TODO handle errror
+                        console.log('file format not supported!');
+                    }
+                }
+            }
+        } else {
+            //Preventing text inserts
+            for (var j = 0; j < ev.dataTransfer.files.length; j++) {
+                console.log('... file[' + j + '].name = ' + ev.dataTransfer.files[j].name);
+                console.log('Only files allowed!');
+            }
+        }
     }
 
     function dragoverHandler(ev) {
         console.log('File(s) in drop zone');
-
         ev.preventDefault();
+    }
+
+    function dragendHandler(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        document.getElementById("overlay").style.display = "none";
     }
 
     function validateFile(file) {
@@ -114,7 +154,7 @@ export default function Dropzone() {
 
             <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
                 {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
-
+                <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles}></CardsDisplay>
             </div>
         </div>
 
