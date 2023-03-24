@@ -1,16 +1,37 @@
+body {
+  background: #9CCF;
+  height: 95vh;
+}
+
 #canvas_wrapper {
-  position: relative;
-  height: 700px;
-  width: 400px;
+  margin: auto;
+  padding: 10px;
+  height:60vh;
+  width: 80vw;
+
+  display: flex;
+  justify-content: center;
+
+  background: orange;
 }
 
 #viewport {
-    margin: auto;
-    position: absolute;
-    border: 1px solid black;
-    height: 700px;
-    width: 400px;
+  height: 60vh;
+  width: 35vw;
+  margin: 5px;
+
+  border: 1px solid black;
+
 }
+
+#cropViewport {
+  height: 60vh;
+  width: 35vw;
+  margin: 5px;
+
+  border: 1px solid black;
+}
+
 
 #buttonWrapper {
   position: absolute;
@@ -19,8 +40,7 @@
   right: 2px;
 }
 
-input[type =
-"button"] {
+input[type ="button"] {
   padding: 5px;
   width: 30px;
   margin: 0px 0px 2px 0px;
@@ -28,11 +48,13 @@ input[type =
 
 #cardsDisplay {
     position: relative;
+    margin: auto;
     z-index: 3;
     background-color: whitesmoke;
 
-    min-height: 210px;
     margin-top: 1%;
+    height: 20vh;
+    width: 90vw;
 
     border: 5px dashed teal;
     border-radius: 5px;

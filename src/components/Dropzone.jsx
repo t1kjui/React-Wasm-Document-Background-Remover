@@ -106,10 +106,12 @@ export default function Dropzone() {
   }
 
   function drawImage(displayedImage) {
-    console.log("clicked");
+    console.log("clicked draw");
     const canvas = document.getElementById("viewport");
-    canvas.width = 400;
-    canvas.height = 700;
+    console.log(canvas.clientWidth);
+
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     const ctx = canvas.getContext("2d");
     const myImage = new Image();
     myImage.src = files[0].URL;
@@ -167,12 +169,44 @@ export default function Dropzone() {
 
   }
 
+  ////////////////////////
+  // Image crop section //
+  ////////////////////////
+  function cropImage() {
+    console.log("clicked crop");
+    const canvas = document.getElementById("cropViewport");
+    console.log(canvas.clientWidth);
 
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const ctx = canvas.getContext("2d");
+    const myImage = new Image();
+    myImage.src = files[0].URL;
+
+    myImage.onload = function() {
+      ctx.imageSmoothingEnabled = false;
+      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
+      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
+
+      let cropX = 100;
+      let cropY = 0;
+      let cropSWidth = myImage.width - 100;
+      let cropSHeight = myImage.height;
+
+      console.log(myImage.width)
+
+      ctx.drawImage(myImage, cropX, cropY, 600, 600, x + 50, y, myImage.width * scale, myImage.height * scale);
+
+      console.log("Image is drawn");
+    }
+  }
 
   return (
     <div>
       <div id="canvas_wrapper">
         <canvas id="viewport" />
+        <canvas id="cropViewport"/>
         <div id="buttonWrapper">
           <input type="button" id="plus" value="+" /><input type="button" id="minus" value="-" />
         </div>
@@ -189,9 +223,10 @@ export default function Dropzone() {
             uploadButtonHandler(event)
           }} />
       </label>
-      <button type='button' onClick={drawImage}>click</button>
+      <button type='button' onClick={drawImage}>Show Image</button>
+      <button type='button' onClick={cropImage}>Crop</button>
       <button type='button' onClick={print}>Print</button>
-      <img id="source" alt="main"/>
+      <img id="source" alt="main" />
 
 
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
