@@ -1,5 +1,8 @@
 # esbuild React Javascript Template
 
+# WASM build command
+em++ *.cpp -o customAlghoritm.mjs -s ENVIRONMENT='web' -s WASM=0 -s EXPORTED_RUNTIME_METHODS="['FS','ccall']" -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s USE_ES6_IMPORT_META=0 -s EXPORT_NAME='wasmModule'
+
 > This is a Javascript template for [esbuild create react app](https://github.com/awran5/esbuild-create-react-app) project.
 
 ## What is inside?

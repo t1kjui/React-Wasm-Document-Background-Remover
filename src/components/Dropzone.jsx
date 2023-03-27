@@ -2,19 +2,21 @@ import React from "react";
 import { useState, useEffect } from "react"
 import './Dropzone.css'
 
-import createModule from "./backgroundRemover.mjs";
+import wasmModule from "./customAlghoritm.mjs";
 import CardsDisplay from "./CardsDisplay";
 
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
   const [displayedImage, setDisplayedImage] = useState([]);
-  const [wasmModule, setWasmModule] = useState();
+  const [myWasmModule, setMyWasmModule] = useState();
 
   const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
 
   useEffect(() => {
-    createModule().then((Module) => {
-      setWasmModule(Module);
+    wasmModule().then((Module) => {
+      setMyWasmModule(Module);
+
+
       console.log("WASM module loaded!");
     });
   }, []);
@@ -107,6 +109,9 @@ export default function Dropzone() {
 
   function drawImage(displayedImage) {
     console.log("clicked draw");
+
+    console.log(myWasmModule.FS.readdir('./'));
+
     const canvas = document.getElementById("viewport");
     console.log(canvas.clientWidth);
 
@@ -172,10 +177,9 @@ export default function Dropzone() {
   ////////////////////////
   // Image crop section //
   ////////////////////////
-  function cropImage() {
+  function cropImage(cropLeft, cropTop, cropRight, cropBottom) {
     console.log("clicked crop");
     const canvas = document.getElementById("cropViewport");
-    console.log(canvas.clientWidth);
 
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
@@ -185,18 +189,14 @@ export default function Dropzone() {
 
     myImage.onload = function() {
       ctx.imageSmoothingEnabled = false;
-      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
-      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
-
-      let cropX = 100;
-      let cropY = 0;
-      let cropSWidth = myImage.width - 100;
-      let cropSHeight = myImage.height;
+      let scale = Math.min(canvas.width / (myImage.width - (cropLeft + cropRight)), canvas.height / (myImage.height - (cropTop + cropBottom)));
+      let x = (canvas.width / 2) - ((myImage.width - (cropLeft + cropRight)) / 2) * scale;
+      let y = (canvas.height / 2) - ((myImage.height - (cropTop + cropBottom)) / 2) * scale;
 
       console.log(myImage.width)
 
-      ctx.drawImage(myImage, cropX, cropY, 600, 600, x + 50, y, myImage.width * scale, myImage.height * scale);
+
+      ctx.drawImage(myImage, cropLeft, cropTop, myImage.width - cropRight, myImage.height - cropBottom, x - (cropLeft - cropRight) / 2, y, myImage.width * scale, myImage.height * scale);
 
       console.log("Image is drawn");
     }
@@ -206,7 +206,7 @@ export default function Dropzone() {
     <div>
       <div id="canvas_wrapper">
         <canvas id="viewport" />
-        <canvas id="cropViewport"/>
+        <canvas id="cropViewport" />
         <div id="buttonWrapper">
           <input type="button" id="plus" value="+" /><input type="button" id="minus" value="-" />
         </div>
@@ -224,10 +224,11 @@ export default function Dropzone() {
           }} />
       </label>
       <button type='button' onClick={drawImage}>Show Image</button>
-      <button type='button' onClick={cropImage}>Crop</button>
+      <button type='button' onClick={() => cropImage(100, 50, 100, 0)}>Crop</button>
       <button type='button' onClick={print}>Print</button>
-      <img id="source" alt="main" />
-
+      <div>
+        <input type="range" min="1" max="100" defaultValue="50" className="slider" id="myRange" />
+      </div>
 
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
         {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
