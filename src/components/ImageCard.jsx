@@ -37,9 +37,9 @@ export default function ImageCard({ files, file, removeFile, setFiles}) {
         <div style={{ backgroundImage: "url(" + file.URL + ")" }} className='imageCard'>
             <div className='righSwap'> {'<'} </div>
             <div className='imageCardTitle'>{file.fileObject.name}</div>
-            <button onClick={swapLeft}>{'<<<'}</button>
-            <button className='removeButton' onClick={handleRemoveFile}>X </button>
-            <button onClick={swapRight}>{'>>>'}</button>
+            <button type="button" onClick={swapLeft}>{'<<<'}</button>
+            <button type="button" className='removeButton' onClick={handleRemoveFile}>X </button>
+            <button type="button" onClick={swapRight}>{'>>>'}</button>
         </div>
     )
 }

@@ -110,7 +110,6 @@ export default function Dropzone() {
   function drawImage(displayedImage) {
     console.log("clicked draw");
 
-    console.log(myWasmModule.FS.readdir('./'));
 
     const canvas = document.getElementById("viewport");
     console.log(canvas.clientWidth);
@@ -131,11 +130,6 @@ export default function Dropzone() {
       console.log("Image is drawn");
     }
     console.log(Image);
-  }
-
-  async function wasmDemo() {
-    console.log(wasmModule.FS.readdir('./'));
-
   }
 
   function print() {
@@ -202,6 +196,20 @@ export default function Dropzone() {
     }
   }
 
+  async function testWasm() {
+    console.log(files[0]);
+    let bmpBuffer = await files[0].fileObject.arrayBuffer().then(buff => {return new Uint8Array(buff)});
+    myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
+    console.log(myWasmModule.FS.readdir('./'));
+    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
+    let result = await myWasmModule.FS.readFile("testRGB.bmp");
+    console.log(result);
+    let returnFile = new File([result], "demoFile.bmp", {type: "image/bmp"});
+    console.log(returnFile);
+    let returnURL = URL.createObjectURL(returnFile);
+    console.log(returnURL);
+  }
+
   return (
     <div>
       <div id="canvas_wrapper">
@@ -226,6 +234,7 @@ export default function Dropzone() {
       <button type='button' onClick={drawImage}>Show Image</button>
       <button type='button' onClick={() => cropImage(100, 50, 100, 0)}>Crop</button>
       <button type='button' onClick={print}>Print</button>
+      <button type='button' onClick={testWasm}>WASM Test</button>
       <div>
         <input type="range" min="1" max="100" defaultValue="50" className="slider" id="myRange" />
       </div>
