@@ -2,8 +2,16 @@ import React from "react";
 import { useState, useEffect } from "react"
 import './Dropzone.css'
 
-import wasmModule from "./customAlghoritm.mjs";
+
+import { Button, Icon, Switch } from '@mui/material';
+import PrintIcon from '@mui/icons-material/Print';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+
+import { jsPDF } from "jspdf";
+import { downloadZip } from "client-zip"
+// import JSZip from "jszip"
 import CardsDisplay from "./CardsDisplay";
+import wasmModule from "./customAlghoritm.mjs";
 
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
@@ -24,7 +32,11 @@ export default function Dropzone() {
   // Log changes in files array
   useEffect(() => {
     console.log(files);
-  }, [files])
+    if (files.length != 0) {
+      drawImage(files[0].URL);
+      setDisplayedImage(files[0]);
+    }
+  }, [files.length])
 
   // File operations
   function removeFile(file) {
@@ -32,13 +44,6 @@ export default function Dropzone() {
     setFiles(filtered);
     console.log(files);
   }
-
-  useEffect(() => {
-    if (!displayedImage) {
-      setDisplayedImage(files[0]);
-      drawImage(displayedImage);
-    }
-  }, [files])
 
   // File drag-n-drop
   function dropHandler(ev) {
@@ -49,6 +54,7 @@ export default function Dropzone() {
     // Disableing the overlay
     document.getElementById("overlay").style.display = "none";
 
+    const currentFileLength = files.length;
     if (ev.dataTransfer.items) {
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         if (ev.dataTransfer.items[i].kind === 'file') {
@@ -107,9 +113,9 @@ export default function Dropzone() {
     }
   }
 
-  function drawImage(displayedImage) {
+  function drawImage(imageURL) {
     console.log("clicked draw");
-
+    console.log(imageURL);
 
     const canvas = document.getElementById("viewport");
     console.log(canvas.clientWidth);
@@ -118,7 +124,7 @@ export default function Dropzone() {
     canvas.height = canvas.clientHeight;
     const ctx = canvas.getContext("2d");
     const myImage = new Image();
-    myImage.src = files[0].URL;
+    myImage.src = imageURL;
 
     myImage.onload = function() {
       ctx.imageSmoothingEnabled = false;
@@ -196,52 +202,138 @@ export default function Dropzone() {
     }
   }
 
-  async function testWasm() {
-    console.log(files[0]);
-    let bmpBuffer = await files[0].fileObject.arrayBuffer().then(buff => {return new Uint8Array(buff)});
+  async function testWasm(imageID) {
+    let bmpBuffer = await displayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
     console.log(myWasmModule.FS.readdir('./'));
     await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
     let result = await myWasmModule.FS.readFile("testRGB.bmp");
     console.log(result);
-    let returnFile = new File([result], "demoFile.bmp", {type: "image/bmp"});
+    let returnFile = new File([result], "demoFile.bmp", { type: "image/bmp" });
     console.log(returnFile);
     let returnURL = URL.createObjectURL(returnFile);
     console.log(returnURL);
+
+    const canvas = document.getElementById("cropViewport");
+    console.log(canvas.clientWidth);
+
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const ctx = canvas.getContext("2d");
+    const myImage = new Image();
+
+    myImage.src = returnURL;
+
+    myImage.onload = function() {
+      ctx.imageSmoothingEnabled = false;
+      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
+      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
+
+      ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
+      console.log("Image is drawn");
+    }
+
   }
+
+  async function downloadAllZip() {
+
+    if (files.length > 1) {
+      var downloadList = [];
+      files.forEach(file => downloadList.push(file.fileObject));
+      console.log(downloadList);
+      const blob = await downloadZip(downloadList).blob();
+
+      const link = document.createElement("a")
+      link.href = URL.createObjectURL(blob)
+      link.download = "WASM_Magick.zip"
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(link)
+    } else {
+      const link = document.createElement("a");
+      link.href = files[0].URL;
+      link.download = files[0].fileObject.name;
+      link.click()
+      link.remove()
+    }
+  }
+
+    function createPDF() {
+      const doc = new jsPDF();
+
+      doc.text("Hello world!", 10, 10);
+      doc.save("a4.pdf");
+    }
+
+    // let zip = JSZip();
+
+
+    // if (files.length > 1) {
+    //   let downloadList = [];
+    //   files.forEach(file => downloadList.push(file.fileObject));
+    //   const img = zip.folder("images");
+
+    //   //img.file("smile.gif", imgData, {base64: true});
+    //   console.log(files[0].URL);
+    //   files.forEach(file => img.file(file.fileObject.name, file.URL))
+
+    //   zip.generateAsync({type:"blob"}).then(function(content) {
+
+    //     const downloadUrl = URL.createObjectURL(content);
+    //     downloadUrl.download = "WASM_Magick.zip"
+    //     const a = document.createElement('a');
+
+    //     a.href = downloadUrl;
+    //     document.body.appendChild(a);
+    //     a.click();
+
+    //   });
+    // }
 
   return (
     <div>
+      <div id='titleBar'>
+        <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
+        <h2>Document Background Remover Powered by WASM</h2>
+        <div className='dropdown'>
+          <button type='button' className='dropbtn'>Language</button>
+          <div className='dropdown-content'>
+            <button type='button'>English</button>
+            <button type='button'>Hungarian</button>
+          </div>
+        </div>
+      </div>
       <div id="canvas_wrapper">
         <canvas id="viewport" />
         <canvas id="cropViewport" />
-        <div id="buttonWrapper">
-          <input type="button" id="plus" value="+" /><input type="button" id="minus" value="-" />
-        </div>
-      </div>
-      <label htmlFor="inputField" className="custom-file-upload">
-        Custom Upload
-        <input
-          id='inputField'
-          type="file"
-          name="myImage"
-          multiple
-          style={{ display: 'none' }}
-          onChange={(event) => {
-            uploadButtonHandler(event)
-          }} />
-      </label>
-      <button type='button' onClick={drawImage}>Show Image</button>
-      <button type='button' onClick={() => cropImage(100, 50, 100, 0)}>Crop</button>
-      <button type='button' onClick={print}>Print</button>
-      <button type='button' onClick={testWasm}>WASM Test</button>
-      <div>
-        <input type="range" min="1" max="100" defaultValue="50" className="slider" id="myRange" />
       </div>
 
+      <div id='controls'>
+        <Button variant='contained' component='label'>
+          <Icon component={FileUploadIcon} />
+          Upload
+          <input
+            id='inputField'
+            type="file"
+            name="myImage"
+            multiple
+            style={{ display: 'none' }}
+            onChange={(event) => {
+              uploadButtonHandler(event)
+            }} />
+        </Button>
+        <Button type='button' variant='contained' onClick={downloadAllZip}>Download</Button>
+        <Button type='button' variant='contained' onClick={print}>
+          <Icon component={PrintIcon} />
+          Print Image
+        </Button>
+        <button type='button' onClick={testWasm}>WASM Test</button>
+        <button type='button' onClick={createPDF}>Something</button>
+      </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
         {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
-        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles}></CardsDisplay>
+        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles} drawImage={drawImage} testWasm={testWasm} setDisplayedImage={setDisplayedImage} />
       </div>
     </div>
 

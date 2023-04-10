@@ -1,7 +1,7 @@
 import React from 'react'
 import './ImageCard.css'
 
-export default function ImageCard({ files, file, removeFile, setFiles}) {
+export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, setDisplayedImage }) {
 
     function swapLeft(ev) {
         ev.stopPropagation()
@@ -33,8 +33,13 @@ export default function ImageCard({ files, file, removeFile, setFiles}) {
         }
     }
 
+    function handleDraw() {
+        drawImage(file.URL);
+        setDisplayedImage(file);
+    }
+
     return (
-        <div style={{ backgroundImage: "url(" + file.URL + ")" }} className='imageCard'>
+        <div style={{ backgroundImage: "url(" + file.URL + ")" }} className='imageCard' onClick={handleDraw}>
             <div className='righSwap'> {'<'} </div>
             <div className='imageCardTitle'>{file.fileObject.name}</div>
             <button type="button" onClick={swapLeft}>{'<<<'}</button>
