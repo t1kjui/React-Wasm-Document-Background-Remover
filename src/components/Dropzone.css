@@ -29,15 +29,34 @@ body {
 
   display: flex;
   justify-content: center;
+}
 
-  background: orange;
+#leftCanvas {
+  position: relative;
+}
+
+#rightCanvas {
+  position: relative;
+}
+
+.canvasInputWrapper {
+  position: absolute;
+  width: 30px;
+  top: 12px;
+  right: 12px;
+}
+
+.canvasInput {
+  padding: 5px;
+  width: 30px;
+  margin: 0px 0px 2px 0px;
 }
 
 #viewport {
   height: 60vh;
   width: 35vw;
   margin: 5px;
-  border: 1px solid black;
+  border: 3px dotted whitesmoke;
 
 }
 
@@ -45,7 +64,7 @@ body {
   height: 60vh;
   width: 35vw;
   margin: 5px;
-  border: 1px solid black;
+  border: 3px dotted whitesmoke;
 }
 
 
@@ -58,6 +77,17 @@ body {
 
 #controls {
   width: 90vw;
+  margin: auto;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.controllButton {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+#instructions {
   margin: auto;
 }
 

@@ -6,6 +6,9 @@ import './Dropzone.css'
 import { Button, Icon, Switch } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import GradientIcon from '@mui/icons-material/Gradient';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
@@ -261,9 +264,19 @@ export default function Dropzone() {
 
     function createPDF() {
       const doc = new jsPDF();
-
-      doc.text("Hello world!", 10, 10);
-      doc.save("a4.pdf");
+      for (let i = 0; i < files.length; i++) {
+        let newImage = new Image();
+        newImage.src = files[i].URL;
+        if (newImage.width > newImage.height) {
+          doc.addPage([newImage.width,newImage.height],'l');
+          doc.addImage(newImage, 'bmp',0,0,newImage.width,newImage.height);
+        } else {
+          doc.addPage([newImage.width,newImage.height],'w');
+          doc.addImage(newImage, 'bmp',0,0,newImage.width,newImage.height);
+        }
+      }
+      doc.deletePage(1);
+      doc.save("WASMImages.pdf");
     }
 
     // let zip = JSZip();
@@ -305,8 +318,20 @@ export default function Dropzone() {
         </div>
       </div>
       <div id="canvas_wrapper">
-        <canvas id="viewport" />
-        <canvas id="cropViewport" />
+        <div id="leftCanvas">
+          <canvas id="viewport" />
+          <div className="canvasInputWrapper">
+            <input className="canvasInput" type="button" id="plus" value="+" />
+            <input type="button" id="minus" className="canvasInput" value="-" />
+          </div>
+        </div>
+        <div id="rightCanvas">
+          <canvas id="cropViewport" />
+          <div className="canvasInputWrapper">
+            <input className="canvasInput" type="button" id="plus" value="+" />
+            <input type="button" id="minus" className="canvasInput" value="-" />
+          </div>
+        </div>
       </div>
 
       <div id='controls'>
@@ -323,13 +348,20 @@ export default function Dropzone() {
               uploadButtonHandler(event)
             }} />
         </Button>
-        <Button type='button' variant='contained' onClick={downloadAllZip}>Download</Button>
-        <Button type='button' variant='contained' onClick={print}>
+        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={downloadAllZip}>
+          <Icon component={FileDownloadIcon}/>
+          Download</Button>
+        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
           Print Image
         </Button>
-        <button type='button' onClick={testWasm}>WASM Test</button>
-        <button type='button' onClick={createPDF}>Something</button>
+        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={testWasm}>
+          <Icon component={GradientIcon}/>
+          Delete Background</Button>
+        <Button sx={{ mx: 1 }} className='controllButton' type='button' variant='contained' onClick={createPDF}>
+          <Icon component={PictureAsPdfIcon}/>
+          Create PDF
+        </Button>
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
         {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
