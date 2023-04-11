@@ -21,6 +21,11 @@ export default function Dropzone() {
   const [displayedImage, setDisplayedImage] = useState([]);
   const [myWasmModule, setMyWasmModule] = useState();
 
+  const [downloadButtonDisabled, setDownloadButtonDisabled] = useState();
+  const [printButtonDisabled, setPrintButtonDisabled] = useState();
+  const [deleteBackgroundButtonDisabled, setDeleteBackgroundButtonDisabled] = useState();
+  const [pdfButtonDisabled, setPdfButtonDisabled] = useState();
+
   const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
 
   useEffect(() => {
@@ -30,16 +35,41 @@ export default function Dropzone() {
 
       console.log("WASM module loaded!");
     });
+
+    setDownloadButtonDisabled(true);
+    setPrintButtonDisabled(true);
+    setDeleteBackgroundButtonDisabled(true);
+    setPdfButtonDisabled(true);
   }, []);
 
   // Log changes in files array
   useEffect(() => {
     console.log(files);
+
+
     if (files.length != 0) {
+      document.getElementById("canvas_wrapper").classList.toggle('expand', true);
+      document.getElementById("leftCanvas").classList.toggle('show', true);
       drawImage(files[0].URL);
       setDisplayedImage(files[0]);
+
+      setDownloadButtonDisabled(false);
+      setPrintButtonDisabled(false);
+      setDeleteBackgroundButtonDisabled(false);
+      setPdfButtonDisabled(false);
+
+    } else {
+      setDownloadButtonDisabled(true);
+      setPrintButtonDisabled(true);
+      setDeleteBackgroundButtonDisabled(true);
+      setPdfButtonDisabled(true);
+
     }
   }, [files.length])
+
+  useEffect(() => {
+    console.log(displayedImage);
+  }, [displayedImage])
 
   // File operations
   function removeFile(file) {
@@ -116,12 +146,67 @@ export default function Dropzone() {
     }
   }
 
+  //////////////////////
+  // Canvas controlls //
+  //////////////////////
+
+  useEffect(() => {
+    let canvas = document.getElementById("viewport");
+
+    let translatePos = {
+      x: canvas.width / 2,
+      y: canvas.height / 2
+    };
+
+    let scale = 1.0;
+    let scaleMultiplier = 0.8;
+    let startDragOffset = {};
+    let mouseDown = false;
+
+    // add button event listeners
+    document.getElementById("plus").addEventListener("click", function() {
+      scale /= scaleMultiplier;
+      reDraw(scale, translatePos);
+    }, false);
+
+    document.getElementById("minus").addEventListener("click", function() {
+      scale *= scaleMultiplier;
+      reDraw(scale, translatePos);
+    }, false);
+
+    // add event listeners to handle screen drag
+    canvas.addEventListener("mousedown", function(evt) {
+      mouseDown = true;
+      startDragOffset.x = evt.clientX - translatePos.x;
+      startDragOffset.y = evt.clientY - translatePos.y;
+    });
+
+    canvas.addEventListener("mouseup", function(evt) {
+      mouseDown = false;
+    });
+
+    canvas.addEventListener("mouseover", function(evt) {
+      mouseDown = false;
+    });
+
+    canvas.addEventListener("mouseout", function(evt) {
+      mouseDown = false;
+    });
+
+    canvas.addEventListener("mousemove", function(evt) {
+      if (mouseDown) {
+        translatePos.x = evt.clientX - startDragOffset.x;
+        translatePos.y = evt.clientY - startDragOffset.y;
+        reDraw(scale, translatePos);
+      }
+    });
+  }, [])
+
   function drawImage(imageURL) {
     console.log("clicked draw");
     console.log(imageURL);
 
     const canvas = document.getElementById("viewport");
-    console.log(canvas.clientWidth);
 
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
@@ -139,6 +224,29 @@ export default function Dropzone() {
       console.log("Image is drawn");
     }
     console.log(Image);
+  }
+
+  function reDraw(scale, translatePos) {
+    let canvas = document.getElementById("viewport");
+    let context = canvas.getContext("2d");
+
+    context.save();
+    context.translate(translatePos.x, translatePos.y);
+    context.scale(scale, scale);
+
+    const myImage = new Image();
+    myImage.src = displayedImage.URL;
+
+    myImage.onload = function() {
+      context.imageSmoothingEnabled = false;
+      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
+      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
+
+      context.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
+      console.log("Image is drawn");
+    }
+
   }
 
   function print() {
@@ -205,7 +313,9 @@ export default function Dropzone() {
     }
   }
 
-  async function testWasm(imageID) {
+  async function testWasm() {
+    document.getElementById("rightCanvas").classList.toggle('show', true);
+
     let bmpBuffer = await displayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
     console.log(myWasmModule.FS.readdir('./'));
@@ -237,6 +347,22 @@ export default function Dropzone() {
       console.log("Image is drawn");
     }
 
+
+    let tempArray = []
+    for (let i = 0; i < files.length; i++) {
+      console.log("trying Changing image");
+      console.log(displayedImage.URL);
+      console.log(files[i].URL);
+
+      if (displayedImage.URL === files[i].URL) {
+        tempArray[i] = { fileObject: returnFile, URL: URL.createObjectURL(returnFile) };
+        console.log("Changing file");
+        console.log(files[i]);
+      } else {
+        tempArray[i] = files[i];
+      }
+    }
+    setFiles(tempArray);
   }
 
   async function downloadAllZip() {
@@ -262,47 +388,47 @@ export default function Dropzone() {
     }
   }
 
-    function createPDF() {
-      const doc = new jsPDF();
-      for (let i = 0; i < files.length; i++) {
-        let newImage = new Image();
-        newImage.src = files[i].URL;
-        if (newImage.width > newImage.height) {
-          doc.addPage([newImage.width,newImage.height],'l');
-          doc.addImage(newImage, 'bmp',0,0,newImage.width,newImage.height);
-        } else {
-          doc.addPage([newImage.width,newImage.height],'w');
-          doc.addImage(newImage, 'bmp',0,0,newImage.width,newImage.height);
-        }
+  function createPDF() {
+    const doc = new jsPDF();
+    for (let i = 0; i < files.length; i++) {
+      let newImage = new Image();
+      newImage.src = files[i].URL;
+      if (newImage.width > newImage.height) {
+        doc.addPage([newImage.width, newImage.height], 'l');
+        doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
+      } else {
+        doc.addPage([newImage.width, newImage.height], 'w');
+        doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
       }
-      doc.deletePage(1);
-      doc.save("WASMImages.pdf");
     }
+    doc.deletePage(1);
+    doc.save("WASMImages.pdf");
+  }
 
-    // let zip = JSZip();
+  // let zip = JSZip();
 
 
-    // if (files.length > 1) {
-    //   let downloadList = [];
-    //   files.forEach(file => downloadList.push(file.fileObject));
-    //   const img = zip.folder("images");
+  // if (files.length > 1) {
+  //   let downloadList = [];
+  //   files.forEach(file => downloadList.push(file.fileObject));
+  //   const img = zip.folder("images");
 
-    //   //img.file("smile.gif", imgData, {base64: true});
-    //   console.log(files[0].URL);
-    //   files.forEach(file => img.file(file.fileObject.name, file.URL))
+  //   //img.file("smile.gif", imgData, {base64: true});
+  //   console.log(files[0].URL);
+  //   files.forEach(file => img.file(file.fileObject.name, file.URL))
 
-    //   zip.generateAsync({type:"blob"}).then(function(content) {
+  //   zip.generateAsync({type:"blob"}).then(function(content) {
 
-    //     const downloadUrl = URL.createObjectURL(content);
-    //     downloadUrl.download = "WASM_Magick.zip"
-    //     const a = document.createElement('a');
+  //     const downloadUrl = URL.createObjectURL(content);
+  //     downloadUrl.download = "WASM_Magick.zip"
+  //     const a = document.createElement('a');
 
-    //     a.href = downloadUrl;
-    //     document.body.appendChild(a);
-    //     a.click();
+  //     a.href = downloadUrl;
+  //     document.body.appendChild(a);
+  //     a.click();
 
-    //   });
-    // }
+  //   });
+  // }
 
   return (
     <div>
@@ -348,18 +474,19 @@ export default function Dropzone() {
               uploadButtonHandler(event)
             }} />
         </Button>
-        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={downloadAllZip}>
-          <Icon component={FileDownloadIcon}/>
+        <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
+          <Icon component={FileDownloadIcon} />
           Download</Button>
-        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={print}>
+        <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
           Print Image
         </Button>
-        <Button sx={{ mx: 1 }} type='button' variant='contained' onClick={testWasm}>
-          <Icon component={GradientIcon}/>
-          Delete Background</Button>
-        <Button sx={{ mx: 1 }} className='controllButton' type='button' variant='contained' onClick={createPDF}>
-          <Icon component={PictureAsPdfIcon}/>
+        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
+          <Icon component={GradientIcon} />
+          Delete Background
+        </Button>
+        <Button sx={{ mx: 1 }} className='controllButton' disabled={pdfButtonDisabled} type='button' variant='contained' onClick={createPDF}>
+          <Icon component={PictureAsPdfIcon} />
           Create PDF
         </Button>
       </div>

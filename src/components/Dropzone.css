@@ -24,19 +24,43 @@ body {
 #canvas_wrapper {
   margin: auto;
   padding: 10px;
-  height:60vh;
+  height:10vh;
   width: 80vw;
 
   display: flex;
   justify-content: center;
+
+  transition: all .5s ease-in-out;
+}
+
+#canvas_wrapper.expand {
+  height: 60vh;
 }
 
 #leftCanvas {
   position: relative;
+
+  transition: all .5s ease-in-out;
+  transition-delay: 250ms;
+  opacity: 0;
+}
+
+#leftCanvas.show {
+  opacity: 1;
 }
 
 #rightCanvas {
   position: relative;
+  opacity: 0;
+  width: 0;
+
+  transition-delay: 250ms;
+  transition: all .5s ease-in-out;
+}
+
+#rightCanvas.show {
+  opacity: 1;
+  width: 35vw;
 }
 
 .canvasInputWrapper {
