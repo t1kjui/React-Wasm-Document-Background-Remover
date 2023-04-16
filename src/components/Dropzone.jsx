@@ -12,6 +12,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
+import { FlagIcon } from "react-flag-kit";
 // import JSZip from "jszip"
 import CardsDisplay from "./CardsDisplay";
 import wasmModule from "./customAlghoritm.mjs";
@@ -50,6 +51,7 @@ export default function Dropzone() {
     if (files.length != 0) {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
+
       drawImage(files[0].URL);
       setDisplayedImage(files[0]);
 
@@ -59,11 +61,14 @@ export default function Dropzone() {
       setPdfButtonDisabled(false);
 
     } else {
+      document.getElementById("canvas_wrapper").classList.toggle('expand', false);
+      document.getElementById("leftCanvas").classList.toggle('show', false);
+      document.getElementById("rightCanvas").classList.toggle('show', false);
+
       setDownloadButtonDisabled(true);
       setPrintButtonDisabled(true);
       setDeleteBackgroundButtonDisabled(true);
       setPdfButtonDisabled(true);
-
     }
   }, [files.length])
 
@@ -264,7 +269,8 @@ export default function Dropzone() {
     iframe.addEventListener('load', () => {
       // Clone the image
       const image = document.createElement('img');
-      image.src = files[0].URL;
+      image.src = displayedImage.URL;
+      console.log(displayedImage);
       image.style.maxWidth = '100%';
       console.log(image);
 
@@ -435,12 +441,9 @@ export default function Dropzone() {
       <div id='titleBar'>
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
         <h2>Document Background Remover Powered by WASM</h2>
-        <div className='dropdown'>
-          <button type='button' className='dropbtn'>Language</button>
-          <div className='dropdown-content'>
-            <button type='button'>English</button>
-            <button type='button'>Hungarian</button>
-          </div>
+        <div id='langIcons'>
+          <img className="langFlag" alt="" src="./GB.svg" draggable={false}/>
+          <img className="langFlag" alt="" src="./HU.svg" draggable={false}/>
         </div>
       </div>
       <div id="canvas_wrapper">
