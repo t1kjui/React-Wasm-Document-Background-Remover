@@ -320,21 +320,19 @@ export default function Dropzone() {
   }
 
   async function testWasm() {
-    document.getElementById("rightCanvas").classList.toggle('show', true);
+    document.getElementById("progressIndicator").classList.toggle('show', true);
+    document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
+
 
     let bmpBuffer = await displayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
     console.log(myWasmModule.FS.readdir('./'));
     await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
     let result = await myWasmModule.FS.readFile("testRGB.bmp");
-    console.log(result);
     let returnFile = new File([result], "demoFile.bmp", { type: "image/bmp" });
-    console.log(returnFile);
     let returnURL = URL.createObjectURL(returnFile);
-    console.log(returnURL);
 
     const canvas = document.getElementById("cropViewport");
-    console.log(canvas.clientWidth);
 
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
@@ -356,19 +354,20 @@ export default function Dropzone() {
 
     let tempArray = []
     for (let i = 0; i < files.length; i++) {
-      console.log("trying Changing image");
-      console.log(displayedImage.URL);
-      console.log(files[i].URL);
-
       if (displayedImage.URL === files[i].URL) {
         tempArray[i] = { fileObject: returnFile, URL: URL.createObjectURL(returnFile) };
-        console.log("Changing file");
-        console.log(files[i]);
       } else {
         tempArray[i] = files[i];
       }
     }
     setFiles(tempArray);
+
+    document.getElementById("progressIndicator").value = 100;
+
+    document.getElementById("rightCanvas").classList.toggle('show', true);
+    await new Promise(r => setTimeout(r, 500));
+    document.getElementById("progressIndicator").classList.toggle('show', false);
+
   }
 
   async function downloadAllZip() {
@@ -411,31 +410,6 @@ export default function Dropzone() {
     doc.save("WASMImages.pdf");
   }
 
-  // let zip = JSZip();
-
-
-  // if (files.length > 1) {
-  //   let downloadList = [];
-  //   files.forEach(file => downloadList.push(file.fileObject));
-  //   const img = zip.folder("images");
-
-  //   //img.file("smile.gif", imgData, {base64: true});
-  //   console.log(files[0].URL);
-  //   files.forEach(file => img.file(file.fileObject.name, file.URL))
-
-  //   zip.generateAsync({type:"blob"}).then(function(content) {
-
-  //     const downloadUrl = URL.createObjectURL(content);
-  //     downloadUrl.download = "WASM_Magick.zip"
-  //     const a = document.createElement('a');
-
-  //     a.href = downloadUrl;
-  //     document.body.appendChild(a);
-  //     a.click();
-
-  //   });
-  // }
-
   return (
     <div>
       <div id='titleBar'>
@@ -461,6 +435,10 @@ export default function Dropzone() {
             <input type="button" id="minus" className="canvasInput" value="-" />
           </div>
         </div>
+      </div>
+
+      <div id="progressIndicatorWrapper">
+        <progress id="progressIndicator" value="0" max="100"></progress>
       </div>
 
       <div id='controls'>

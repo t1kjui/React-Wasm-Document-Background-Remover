@@ -9,7 +9,6 @@
     max-width: 250px;
 
     background-size: cover;
-    display: inline-block;
 
     border: 2px solid black;
     border-radius: 10px;
@@ -20,23 +19,48 @@
     cursor: pointer;
 }
 
-.rightSwap {
+#swapButtons {
     position: absolute;
-    top: 0;
-    height: 100%;
-    width: 20%;
-    color: white;
+    bottom: 0;
+    padding-bottom: 2px;
+    width: 100%;
 
+    display: inline-block;
+    justify-content: 30%;
+}
+
+.swapButton {
+    background-color: #1E88E5;
+    color: white;
+    border-radius: 20%;
+    text-decoration: none;
+}
+
+#leftSwap {
+    float: left;
+    margin-left: 5px;
+}
+
+#rightSwap {
+    float: right;
+    margin-right: 7px;
 }
 
 .imageCardTitle {
-    size: 16pt;
-    text-align: left;
+    position: absolute;
+    display: inline-block;
     text-decoration: solid;
+    top: 5px;
+    left: 5pt;
+    padding: 1px;
+    max-width: 60%;
+
+    border-radius: 10%;
+    border: 1px solid white;
 
     overflow: hidden;
     color: aliceblue;
-    text-shadow: 1px 1px grey;
+    background: #1E88E5;
 
     z-index: top;
 }
@@ -45,6 +69,10 @@
     position: absolute;
     top: 5px;
     right: 5pt;
+    background-color: #1E88E5;
+    color: white;
+    border-radius: 20%;
+    text-decoration: none;
 }
 
 .removeBackground {

@@ -1,5 +1,5 @@
 body {
-  background: #e3f2f;
+  background: whitesmoke;
   height: 95vh;
 }
 
@@ -75,6 +75,7 @@ body {
   position: relative;
   opacity: 0;
   width: 0;
+  overflow: hidden;
 
   transition-delay: 250ms;
   transition: all .5s ease-in-out;
@@ -83,6 +84,7 @@ body {
 #rightCanvas.show {
   opacity: 1;
   width: 35vw;
+  overflow: visible;
 }
 
 .canvasInputWrapper {
@@ -121,6 +123,25 @@ body {
   right: 2px;
 }
 
+#progressIndicatorWrapper {
+  width: 80vw;
+  margin: auto;
+  height: 17px;
+
+  transition: all .5s ease-in-out;
+}
+
+#progressIndicator {
+  width: 80vw;
+  opacity: 0;
+
+  transition: all .5s ease-in-out;
+}
+
+#progressIndicator.show {
+  opacity: 1;
+}
+
 #controls {
   width: 90vw;
   margin: auto;
@@ -145,7 +166,7 @@ body {
     background-color: whitesmoke;
 
     margin-top: 1%;
-    height: 20vh;
+    height: 19vh;
     width: 90vw;
 
     border: 5px dashed teal;
