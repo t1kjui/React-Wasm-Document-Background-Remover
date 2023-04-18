@@ -12,14 +12,13 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
-import { FlagIcon } from "react-flag-kit";
-// import JSZip from "jszip"
 import CardsDisplay from "./CardsDisplay";
 import wasmModule from "./customAlghoritm.mjs";
 
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
-  const [displayedImage, setDisplayedImage] = useState([]);
+  const [leftDisplayedImage, setLeftDisplayedImage] = useState([]);
+  const [rightDisplayedImage, setRightDisplayedImage] = useState([]);
   const [myWasmModule, setMyWasmModule] = useState();
 
   const [downloadButtonDisabled, setDownloadButtonDisabled] = useState();
@@ -52,8 +51,8 @@ export default function Dropzone() {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
 
-      drawImage(files[0].URL);
-      setDisplayedImage(files[0]);
+      drawImage(files[0].URL, "viewport", 1);
+      setLeftDisplayedImage(files[0]);
 
       setDownloadButtonDisabled(false);
       setPrintButtonDisabled(false);
@@ -73,8 +72,8 @@ export default function Dropzone() {
   }, [files.length])
 
   useEffect(() => {
-    console.log(displayedImage);
-  }, [displayedImage])
+    console.log(leftDisplayedImage);
+  }, [leftDisplayedImage])
 
   // File operations
   function removeFile(file) {
@@ -154,64 +153,11 @@ export default function Dropzone() {
   //////////////////////
   // Canvas controlls //
   //////////////////////
+  let zoomLevel1 = 1;
+  let zoomLevel2 = 1;
 
-  useEffect(() => {
-    let canvas = document.getElementById("viewport");
-
-    let translatePos = {
-      x: canvas.width / 2,
-      y: canvas.height / 2
-    };
-
-    let scale = 1.0;
-    let scaleMultiplier = 0.8;
-    let startDragOffset = {};
-    let mouseDown = false;
-
-    // add button event listeners
-    document.getElementById("plus").addEventListener("click", function() {
-      scale /= scaleMultiplier;
-      reDraw(scale, translatePos);
-    }, false);
-
-    document.getElementById("minus").addEventListener("click", function() {
-      scale *= scaleMultiplier;
-      reDraw(scale, translatePos);
-    }, false);
-
-    // add event listeners to handle screen drag
-    canvas.addEventListener("mousedown", function(evt) {
-      mouseDown = true;
-      startDragOffset.x = evt.clientX - translatePos.x;
-      startDragOffset.y = evt.clientY - translatePos.y;
-    });
-
-    canvas.addEventListener("mouseup", function(evt) {
-      mouseDown = false;
-    });
-
-    canvas.addEventListener("mouseover", function(evt) {
-      mouseDown = false;
-    });
-
-    canvas.addEventListener("mouseout", function(evt) {
-      mouseDown = false;
-    });
-
-    canvas.addEventListener("mousemove", function(evt) {
-      if (mouseDown) {
-        translatePos.x = evt.clientX - startDragOffset.x;
-        translatePos.y = evt.clientY - startDragOffset.y;
-        reDraw(scale, translatePos);
-      }
-    });
-  }, [])
-
-  function drawImage(imageURL) {
-    console.log("clicked draw");
-    console.log(imageURL);
-
-    const canvas = document.getElementById("viewport");
+  function drawImage(imageURL, canvasID, scale) {
+    const canvas = document.getElementById(canvasID);
 
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
@@ -228,30 +174,28 @@ export default function Dropzone() {
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
       console.log("Image is drawn");
     }
+    ctx.scale(scale, scale);
     console.log(Image);
   }
 
-  function reDraw(scale, translatePos) {
-    let canvas = document.getElementById("viewport");
-    let context = canvas.getContext("2d");
+  function zoom1() {
+    zoomLevel1 += 0.2;
+    drawImage(leftDisplayedImage.URL, "viewport", zoomLevel1);
+  }
 
-    context.save();
-    context.translate(translatePos.x, translatePos.y);
-    context.scale(scale, scale);
+  function zoomOut1() {
+    zoomLevel1 -= 0.2;
+    drawImage(leftDisplayedImage.URL, "viewport", zoomLevel1);
+  }
 
-    const myImage = new Image();
-    myImage.src = displayedImage.URL;
+  function zoom2() {
+    zoomLevel2 += 0.2;
+    drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
+  }
 
-    myImage.onload = function() {
-      context.imageSmoothingEnabled = false;
-      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
-      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
-
-      context.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
-      console.log("Image is drawn");
-    }
-
+  function zoomOut2() {
+    zoomLevel2 -= 0.2;
+    drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
   }
 
   function print() {
@@ -269,8 +213,8 @@ export default function Dropzone() {
     iframe.addEventListener('load', () => {
       // Clone the image
       const image = document.createElement('img');
-      image.src = displayedImage.URL;
-      console.log(displayedImage);
+      image.src = leftDisplayedImage.URL;
+      console.log(leftDisplayedImage);
       image.style.maxWidth = '100%';
       console.log(image);
 
@@ -291,40 +235,11 @@ export default function Dropzone() {
 
   }
 
-  ////////////////////////
-  // Image crop section //
-  ////////////////////////
-  function cropImage(cropLeft, cropTop, cropRight, cropBottom) {
-    console.log("clicked crop");
-    const canvas = document.getElementById("cropViewport");
-
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    const ctx = canvas.getContext("2d");
-    const myImage = new Image();
-    myImage.src = files[0].URL;
-
-    myImage.onload = function() {
-      ctx.imageSmoothingEnabled = false;
-      let scale = Math.min(canvas.width / (myImage.width - (cropLeft + cropRight)), canvas.height / (myImage.height - (cropTop + cropBottom)));
-      let x = (canvas.width / 2) - ((myImage.width - (cropLeft + cropRight)) / 2) * scale;
-      let y = (canvas.height / 2) - ((myImage.height - (cropTop + cropBottom)) / 2) * scale;
-
-      console.log(myImage.width)
-
-
-      ctx.drawImage(myImage, cropLeft, cropTop, myImage.width - cropRight, myImage.height - cropBottom, x - (cropLeft - cropRight) / 2, y, myImage.width * scale, myImage.height * scale);
-
-      console.log("Image is drawn");
-    }
-  }
-
   async function testWasm() {
     document.getElementById("progressIndicator").classList.toggle('show', true);
     document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
 
-
-    let bmpBuffer = await displayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
+    let bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
     console.log(myWasmModule.FS.readdir('./'));
     await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
@@ -354,8 +269,9 @@ export default function Dropzone() {
 
     let tempArray = []
     for (let i = 0; i < files.length; i++) {
-      if (displayedImage.URL === files[i].URL) {
+      if (leftDisplayedImage.URL === files[i].URL) {
         tempArray[i] = { fileObject: returnFile, URL: URL.createObjectURL(returnFile) };
+        setRightDisplayedImage(tempArray[i]);
       } else {
         tempArray[i] = files[i];
       }
@@ -424,15 +340,15 @@ export default function Dropzone() {
         <div id="leftCanvas">
           <canvas id="viewport" />
           <div className="canvasInputWrapper">
-            <input className="canvasInput" type="button" id="plus" value="+" />
-            <input type="button" id="minus" className="canvasInput" value="-" />
+            <input className="canvasInput" type="button" id="plus1" onClick={zoom1} value="+" />
+            <input className="canvasInput" type="button" id="minus1" onClick={zoomOut1} value="-" />
           </div>
         </div>
         <div id="rightCanvas">
           <canvas id="cropViewport" />
           <div className="canvasInputWrapper">
-            <input className="canvasInput" type="button" id="plus" value="+" />
-            <input type="button" id="minus" className="canvasInput" value="-" />
+            <input className="canvasInput" type="button" id="plus1" onClick={zoom2} value="+" />
+            <input type="button" id="minus2" className="canvasInput" onClick={zoomOut2} value="-" />
           </div>
         </div>
       </div>
@@ -473,7 +389,7 @@ export default function Dropzone() {
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
         {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
-        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles} drawImage={drawImage} testWasm={testWasm} setDisplayedImage={setDisplayedImage} />
+        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles} drawImage={drawImage} testWasm={testWasm} setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>
     </div>
 

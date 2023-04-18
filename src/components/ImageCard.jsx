@@ -1,7 +1,7 @@
 import React from 'react'
 import './ImageCard.css'
 
-export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, setDisplayedImage }) {
+export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, setLeftDisplayedImage }) {
 
   function swapLeft(ev) {
     ev.stopPropagation()
@@ -35,7 +35,7 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
 
   function handleDraw() {
     drawImage(file.URL);
-    setDisplayedImage(file);
+    setLeftDisplayedImage(file);
   }
 
   return (
