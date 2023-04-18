@@ -34,7 +34,7 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
   }
 
   function handleDraw() {
-    drawImage(file.URL);
+    drawImage(file.URL, "viewport");
     setLeftDisplayedImage(file);
   }
 

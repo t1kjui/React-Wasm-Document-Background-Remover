@@ -10,6 +10,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GradientIcon from '@mui/icons-material/Gradient';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
+import { useCookies } from 'react-cookie';
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
 import CardsDisplay from "./CardsDisplay";
@@ -26,6 +27,8 @@ export default function Dropzone() {
   const [deleteBackgroundButtonDisabled, setDeleteBackgroundButtonDisabled] = useState();
   const [pdfButtonDisabled, setPdfButtonDisabled] = useState();
 
+  const [cookies, setCookie] = useCookies(['lang']);
+
   const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
 
   useEffect(() => {
@@ -41,6 +44,10 @@ export default function Dropzone() {
     setDeleteBackgroundButtonDisabled(true);
     setPdfButtonDisabled(true);
   }, []);
+
+  useEffect(() => {
+    console.log(cookies.lang);
+  },[]);
 
   // Log changes in files array
   useEffect(() => {
@@ -332,8 +339,8 @@ export default function Dropzone() {
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
         <h2>Document Background Remover Powered by WASM</h2>
         <div id='langIcons'>
-          <img className="langFlag" alt="" src="./GB.svg" draggable={false}/>
-          <img className="langFlag" alt="" src="./HU.svg" draggable={false}/>
+          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "GB", { path: '/' })}/>
+          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "HU", { path: '/' })}/>
         </div>
       </div>
       <div id="canvas_wrapper">
