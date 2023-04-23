@@ -25,25 +25,58 @@
     padding-bottom: 2px;
     width: 100%;
 
-    display: inline-block;
+    display: flex;
+    justify-content: space-between;
     justify-content: 30%;
 }
 
 .swapButton {
     background-color: #1E88E5;
     color: white;
-    border-radius: 20%;
+    border-radius: 10%;
     text-decoration: none;
 }
 
-#leftSwap {
-    float: left;
-    margin-left: 5px;
+.imageFormat {
+    display: inline-block;
+    background-color: #1E88E5;
+    color: white;
+    border: 1px solid white;
+    border-radius: 20%;
+    padding: 1px;
 }
 
-#rightSwap {
-    float: right;
-    margin-right: 7px;
+.imageFormatError {
+    display: inline-block;
+    background-color: red;
+    color: white;
+    border: 1px solid white;
+    border-radius: 20%;
+    padding: 1px;
+
+    cursor: help;
+}
+
+/* Tooltip text */
+.imageFormatError .tooltiptext {
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 1px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  bottom: 100%;
+  left: 40%;
+  margin-left: -60px;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.imageFormatError:hover .tooltiptext {
+  visibility: visible;
 }
 
 .imageCardTitle {
