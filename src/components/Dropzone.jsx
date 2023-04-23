@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react"
 import './Dropzone.css'
 
-
 import { Button, Icon, Switch } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
@@ -18,10 +17,9 @@ import wasmModule from "./customAlghoritm.mjs";
 
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
-  const [leftDisplayedImage, setLeftDisplayedImage] = useState([]);
+  const [leftDisplayedImage, setLeftDisplayedImage] = useState(null);
   const [rightDisplayedImage, setRightDisplayedImage] = useState([]);
   const [myWasmModule, setMyWasmModule] = useState();
-
   const [downloadButtonDisabled, setDownloadButtonDisabled] = useState();
   const [printButtonDisabled, setPrintButtonDisabled] = useState();
   const [deleteBackgroundButtonDisabled, setDeleteBackgroundButtonDisabled] = useState();
@@ -47,7 +45,7 @@ export default function Dropzone() {
 
   useEffect(() => {
     console.log(cookies.lang);
-  },[]);
+  }, []);
 
   // Log changes in files array
   useEffect(() => {
@@ -80,17 +78,21 @@ export default function Dropzone() {
 
   useEffect(() => {
     console.log(leftDisplayedImage);
+    if (leftDisplayedImage !== null) {
+      if (leftDisplayedImage.fileObject.type === "image/bmp") {
+        setDeleteBackgroundButtonDisabled(false);
+      } else {
+        setDeleteBackgroundButtonDisabled(true);
+      }
+    }
   }, [leftDisplayedImage])
 
-  // File operations
-  function removeFile(file) {
-    var filtered = files.filter(item => item !== file);
-    setFiles(filtered);
-    console.log(files);
-  }
+  /////////////////////
+  // File operations //
+  /////////////////////
 
   // File drag-n-drop
-  function dropHandler(ev) {
+  async function dropHandler(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     console.log('File(s) dropped!');
@@ -98,7 +100,6 @@ export default function Dropzone() {
     // Disableing the overlay
     document.getElementById("overlay").style.display = "none";
 
-    const currentFileLength = files.length;
     if (ev.dataTransfer.items) {
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         if (ev.dataTransfer.items[i].kind === 'file') {
@@ -123,6 +124,12 @@ export default function Dropzone() {
         console.log('Only files allowed!');
       }
     }
+  }
+
+  function removeFile(file) {
+    var filtered = files.filter(item => item !== file);
+    setFiles(filtered);
+    console.log(files);
   }
 
   function dragoverHandler(ev) {
@@ -290,7 +297,6 @@ export default function Dropzone() {
     document.getElementById("rightCanvas").classList.toggle('show', true);
     await new Promise(r => setTimeout(r, 500));
     document.getElementById("progressIndicator").classList.toggle('show', false);
-
   }
 
   async function downloadAllZip() {
@@ -339,8 +345,8 @@ export default function Dropzone() {
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
         <h2>Document Background Remover Powered by WASM</h2>
         <div id='langIcons'>
-          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "GB", { path: '/' })}/>
-          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "HU", { path: '/' })}/>
+          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "GB", { path: '/' })} />
+          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "HU", { path: '/' })} />
         </div>
       </div>
       <div id="canvas_wrapper">
@@ -396,7 +402,14 @@ export default function Dropzone() {
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
         {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
-        <CardsDisplay files={files} removeFile={removeFile} setFiles={setFiles} drawImage={drawImage} testWasm={testWasm} setLeftDisplayedImage={setLeftDisplayedImage} />
+        <CardsDisplay
+          files={files}
+          removeFile={removeFile}
+          setFiles={setFiles}
+          drawImage={drawImage}
+          testWasm={testWasm}
+          leftDisplayedImage={leftDisplayedImage}
+          setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>
     </div>
 

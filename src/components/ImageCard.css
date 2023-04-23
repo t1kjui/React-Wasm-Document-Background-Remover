@@ -74,7 +74,6 @@
   z-index: 1;
 }
 
-/* Show the tooltip text when you mouse over the tooltip container */
 .imageFormatError:hover .tooltiptext {
   visibility: visible;
 }

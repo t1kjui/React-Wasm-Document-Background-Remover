@@ -22,6 +22,7 @@
     "jimp": "^0.22.7",
     "jspdf": "^2.5.1",
     "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
     "react-cookie": "^4.1.1",

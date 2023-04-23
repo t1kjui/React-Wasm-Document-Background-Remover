@@ -2,7 +2,7 @@ import { dividerClasses } from '@mui/material';
 import React from 'react'
 import './ImageCard.css'
 
-export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, setLeftDisplayedImage }) {
+export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
 
   const ref = React.useRef(null);
 
@@ -52,7 +52,10 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
       case "image/bmp":
         return <div className="imageFormat">BMP</div>
       case "image/jpeg":
-        return <div className="imageFormatError">JPEG</div>
+        return <div className="imageFormatError">
+                 <span className="tooltiptext">The background can only be deleted on BMP files!</span>
+                 JPEG
+               </div>
       case "image/png":
         return <div className="imageFormatError">
                  PNG
@@ -64,8 +67,15 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
     }
   }
 
+  function setBorderColor() {
+    if (leftDisplayedImage === file) {
+      console.log("border color");
+      return "2px solid yellow"
+    }
+  }
+
   return (
-    <div style={{ backgroundImage: "url(" + file.URL + ")" }} className='imageCard' onClick={handleDraw}>
+    <div style={{ backgroundImage: "url(" + file.URL + ")", border: setBorderColor() }} className='imageCard' onClick={handleDraw}>
       <div className='imageCardTitle'>{file.fileObject.name}</div>
       <button type="button" className={"removeButton"} onClick={handleRemoveFile}>X </button>
       <div id="swapButtons">
