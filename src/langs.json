@@ -1,0 +1,12 @@
+{
+  "en": {
+    "title": "Document Background Remover Powered by WASM",
+    "upload": "Upload",
+    "download": "Download",
+  },
+  "hu": {
+    "title": "WASM Dokumentum háttéreltávolító"
+    "upload": "Feltöltés",
+    "download": "Letöltés"
+  }
+}

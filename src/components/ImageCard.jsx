@@ -1,16 +1,8 @@
-import { dividerClasses } from '@mui/material';
 import React from 'react'
 import './ImageCard.css'
+import langs from "./langs.json"
 
-export default function ImageCard({ files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
-
-  const ref = React.useRef(null);
-
-  React.useEffect(() => {
-    if (ref) {
-      console.log(ref);
-    }
-  }, [])
+export default function ImageCard({ cookies, files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
 
   function swapLeft(ev) {
     ev.stopPropagation()
@@ -43,8 +35,10 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
   }
 
   function handleDraw() {
-    drawImage(file.URL, "viewport");
-    setLeftDisplayedImage(file);
+    if (leftDisplayedImage !== file) {
+      drawImage(file.URL, "viewport");
+      setLeftDisplayedImage(file);
+    }
   }
 
   function getFileType(mime) {
@@ -53,14 +47,14 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
         return <div className="imageFormat">BMP</div>
       case "image/jpeg":
         return <div className="imageFormatError">
-                 <span className="tooltiptext">The background can only be deleted on BMP files!</span>
-                 JPEG
-               </div>
+          <span className="tooltiptext">{langs[cookies.lang]["tooltip"]}</span>
+          JPEG
+        </div>
       case "image/png":
         return <div className="imageFormatError">
-                 PNG
-                 <span className="tooltiptext">The background can only be deleted on BMP files!</span>
-               </div>
+          PNG
+          <span className="tooltiptext">{langs[cookies.lang]["tooltip"]}</span>
+        </div>
       default:
         console.log("unknown type");
         return <div id="imageFormatError">UNKOWN</div>
@@ -69,7 +63,6 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
 
   function setBorderColor() {
     if (leftDisplayedImage === file) {
-      console.log("border color");
       return "2px solid yellow"
     }
   }
@@ -80,7 +73,7 @@ export default function ImageCard({ files, file, removeFile, setFiles, drawImage
       <button type="button" className={"removeButton"} onClick={handleRemoveFile}>X </button>
       <div id="swapButtons">
         <button type="button" className={"swapButton"} id={"leftSwap"} onClick={swapLeft}>{'<<<'}</button>
-        { getFileType(file.fileObject.type) }
+        {getFileType(file.fileObject.type)}
         <button type="button" className={"swapButton"} id={"rightSwap"} onClick={swapRight}>{'>>>'}</button>
       </div>
     </div>

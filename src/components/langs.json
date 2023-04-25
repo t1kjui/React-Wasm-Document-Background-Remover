@@ -1,0 +1,22 @@
+{
+	"en": {
+		"title": "Document Background Remover Powered by WASM",
+		"upload": "Upload",
+		"download": "Download",
+    "print": "Print Image",
+    "delete_bg": "Delete Background",
+    "create_pdf": "Create PDF",
+    "upload_instruction": "Drag and drop images here...",
+    "tooltip": "The background can only be deleted on BMP files!"
+	},
+	"hu": {
+		"title": "WASM Dokumentum háttéreltávolító",
+		"upload": "Feltöltés",
+		"download": "Letöltés",
+    "print": "Nyomtatás",
+    "delete_bg": "Háttér eltávolítása",
+    "create_pdf": "PDF Generálás",
+    "upload_instruction": "Húzz képeket ide...",
+    "tooltip": "A háttér csak BMP fájlokon távolítható el!"
+	}
+}

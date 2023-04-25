@@ -15,10 +15,12 @@ import { downloadZip } from "client-zip"
 import CardsDisplay from "./CardsDisplay";
 import wasmModule from "./customAlghoritm.mjs";
 
+import langs from "./langs.json"
+
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
   const [leftDisplayedImage, setLeftDisplayedImage] = useState(null);
-  const [rightDisplayedImage, setRightDisplayedImage] = useState([]);
+  const [rightDisplayedImage, setRightDisplayedImage] = useState(null);
   const [myWasmModule, setMyWasmModule] = useState();
   const [downloadButtonDisabled, setDownloadButtonDisabled] = useState();
   const [printButtonDisabled, setPrintButtonDisabled] = useState();
@@ -32,8 +34,6 @@ export default function Dropzone() {
   useEffect(() => {
     wasmModule().then((Module) => {
       setMyWasmModule(Module);
-
-
       console.log("WASM module loaded!");
     });
 
@@ -45,6 +45,10 @@ export default function Dropzone() {
 
   useEffect(() => {
     console.log(cookies.lang);
+    if (!cookies.lang) {
+      const userLang = navigator.language || navigator.userLanguage;
+      setCookie('lang', userLang, { path: '/' });
+    }
   }, []);
 
   // Log changes in files array
@@ -77,12 +81,16 @@ export default function Dropzone() {
   }, [files.length])
 
   useEffect(() => {
-    console.log(leftDisplayedImage);
+    // Prevent first load error
     if (leftDisplayedImage !== null) {
       if (leftDisplayedImage.fileObject.type === "image/bmp") {
         setDeleteBackgroundButtonDisabled(false);
       } else {
         setDeleteBackgroundButtonDisabled(true);
+      }
+      if (rightDisplayedImage != null) {
+        clearCanvas("cropViewport");
+        document.getElementById("rightCanvas").classList.toggle('show', false);
       }
     }
   }, [leftDisplayedImage])
@@ -192,6 +200,12 @@ export default function Dropzone() {
     console.log(Image);
   }
 
+  function clearCanvas(canvasID) {
+    const canvas = document.getElementById(canvasID);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   function zoom1() {
     zoomLevel1 += 0.2;
     drawImage(leftDisplayedImage.URL, "viewport", zoomLevel1);
@@ -248,6 +262,10 @@ export default function Dropzone() {
     });
 
   }
+
+  //////////////////////////
+  // WASM command section //
+  //////////////////////////
 
   async function testWasm() {
     document.getElementById("progressIndicator").classList.toggle('show', true);
@@ -343,10 +361,10 @@ export default function Dropzone() {
     <div>
       <div id='titleBar'>
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
-        <h2>Document Background Remover Powered by WASM</h2>
+        <h2>{ langs[cookies.lang]["title"] }</h2>
         <div id='langIcons'>
-          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "GB", { path: '/' })} />
-          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "HU", { path: '/' })} />
+          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "en", { path: '/' })} />
+          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "hu", { path: '/' })} />
         </div>
       </div>
       <div id="canvas_wrapper">
@@ -373,7 +391,7 @@ export default function Dropzone() {
       <div id='controls'>
         <Button variant='contained' component='label'>
           <Icon component={FileUploadIcon} />
-          Upload
+          { langs[cookies.lang]["upload"] }
           <input
             id='inputField'
             type="file"
@@ -386,23 +404,25 @@ export default function Dropzone() {
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
           <Icon component={FileDownloadIcon} />
-          Download</Button>
+         { langs[cookies.lang]["download"] }
+        </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
-          Print Image
+          { langs[cookies.lang]["print"] }
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
           <Icon component={GradientIcon} />
-          Delete Background
+          { langs[cookies.lang]["delete_bg"] }
         </Button>
         <Button sx={{ mx: 1 }} className='controllButton' disabled={pdfButtonDisabled} type='button' variant='contained' onClick={createPDF}>
           <Icon component={PictureAsPdfIcon} />
-          Create PDF
+          {  langs[cookies.lang]["create_pdf"] }
         </Button>
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
-        {files.length === 0 && (<p id='instructions'>Drag and drop files here...</p>)}
+        {files.length === 0 && (<p id='instructions'>{ langs[cookies.lang]["upload_instruction"] }</p>)}
         <CardsDisplay
+          cookies={cookies}
           files={files}
           removeFile={removeFile}
           setFiles={setFiles}

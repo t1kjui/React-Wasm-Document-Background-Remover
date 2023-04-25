@@ -163,6 +163,10 @@ body {
 }
 
 #instructions {
+  color: grey;
+  opacity: 0.9;
+  cursor: default;
+  user-select: none;
   margin: auto;
 }
 
