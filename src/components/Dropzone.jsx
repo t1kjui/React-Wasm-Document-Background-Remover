@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { useState, useEffect } from "react"
 import './Dropzone.css'
 
@@ -28,6 +28,7 @@ export default function Dropzone() {
   const [pdfButtonDisabled, setPdfButtonDisabled] = useState();
 
   const [cookies, setCookie] = useCookies(['lang']);
+  const [siteLang, setSiteLang] = useState("hu");
 
   const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
 
@@ -44,17 +45,14 @@ export default function Dropzone() {
   }, []);
 
   useEffect(() => {
-    console.log(cookies.lang);
-    if (!cookies.lang) {
-      const userLang = navigator.language || navigator.userLanguage;
-      setCookie('lang', userLang, { path: '/' });
+    if (cookies.lang) {
+      setSiteLang(cookies.lang);
     }
-  }, []);
+  }, [cookies]);
 
   // Log changes in files array
   useEffect(() => {
     console.log(files);
-
 
     if (files.length != 0) {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
@@ -361,7 +359,7 @@ export default function Dropzone() {
     <div>
       <div id='titleBar'>
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
-        <h2>{ langs[cookies.lang]["title"] }</h2>
+        <h2>{ langs[siteLang]["title"] }</h2>
         <div id='langIcons'>
           <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "en", { path: '/' })} />
           <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "hu", { path: '/' })} />
@@ -391,7 +389,7 @@ export default function Dropzone() {
       <div id='controls'>
         <Button variant='contained' component='label'>
           <Icon component={FileUploadIcon} />
-          { langs[cookies.lang]["upload"] }
+          { langs[siteLang]["upload"] }
           <input
             id='inputField'
             type="file"
@@ -404,25 +402,26 @@ export default function Dropzone() {
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
           <Icon component={FileDownloadIcon} />
-         { langs[cookies.lang]["download"] }
+         { langs[siteLang]["download"] }
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
-          { langs[cookies.lang]["print"] }
+          { langs[siteLang]["print"] }
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
           <Icon component={GradientIcon} />
-          { langs[cookies.lang]["delete_bg"] }
+          { langs[siteLang]["delete_bg"] }
         </Button>
         <Button sx={{ mx: 1 }} className='controllButton' disabled={pdfButtonDisabled} type='button' variant='contained' onClick={createPDF}>
           <Icon component={PictureAsPdfIcon} />
-          {  langs[cookies.lang]["create_pdf"] }
+          { langs[siteLang]["create_pdf"] }
         </Button>
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
-        {files.length === 0 && (<p id='instructions'>{ langs[cookies.lang]["upload_instruction"] }</p>)}
+        {files.length === 0 && (<p id='instructions'>{ langs[siteLang]["upload_instruction"] }</p>)}
         <CardsDisplay
           cookies={cookies}
+          siteLang={siteLang}
           files={files}
           removeFile={removeFile}
           setFiles={setFiles}

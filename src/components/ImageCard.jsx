@@ -2,7 +2,7 @@ import React from 'react'
 import './ImageCard.css'
 import langs from "./langs.json"
 
-export default function ImageCard({ cookies, files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
+export default function ImageCard({ cookies, siteLang, files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
 
   function swapLeft(ev) {
     ev.stopPropagation()
@@ -47,13 +47,13 @@ export default function ImageCard({ cookies, files, file, removeFile, setFiles, 
         return <div className="imageFormat">BMP</div>
       case "image/jpeg":
         return <div className="imageFormatError">
-          <span className="tooltiptext">{langs[cookies.lang]["tooltip"]}</span>
+          <span className="tooltiptext">{langs[siteLang]["tooltip"]}</span>
           JPEG
         </div>
       case "image/png":
         return <div className="imageFormatError">
           PNG
-          <span className="tooltiptext">{langs[cookies.lang]["tooltip"]}</span>
+          <span className="tooltiptext">{langs[siteLang]["tooltip"]}</span>
         </div>
       default:
         console.log("unknown type");
