@@ -1,13 +1,14 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { useState, useEffect } from "react"
 import './Dropzone.css'
 
-import { Button, Icon, Switch } from '@mui/material';
+import { Button, Icon } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GradientIcon from '@mui/icons-material/Gradient';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 
 import { useCookies } from 'react-cookie';
 import { jsPDF } from "jspdf";
@@ -58,8 +59,9 @@ export default function Dropzone() {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
 
-      drawImage(files[0].URL, "viewport", 1);
       setLeftDisplayedImage(files[0]);
+      console.log(files[0]);
+      drawImage(files[0].URL, "viewport", 1);
 
       setDownloadButtonDisabled(false);
       setPrintButtonDisabled(false);
@@ -77,6 +79,16 @@ export default function Dropzone() {
       setPdfButtonDisabled(true);
     }
   }, [files.length])
+
+  useEffect(() => {
+    console.log("The new left image");
+    console.log(leftDisplayedImage);
+    const viewport = document.getElementById("viewport");
+    viewport.addEventListener("mousedown", (event) => handleMouseDown(event));
+    viewport.addEventListener("mouseup", (event) => handleMouseUp(event));
+    viewport.addEventListener("mouseout", (event) => handleMouseOut(event));
+    viewport.addEventListener("mousemove", (event) => handleMouseMove(event));
+  }, [leftDisplayedImage])
 
   useEffect(() => {
     // Prevent first load error
@@ -176,6 +188,60 @@ export default function Dropzone() {
   let zoomLevel1 = 1;
   let zoomLevel2 = 1;
 
+  let isDragging;
+  let canMouseX;
+  let canMouseY;
+
+  function handleMouseDown(e) {
+    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX);
+    canMouseY = parseInt(e.clientY - offsetY);
+    isDragging = true;
+  }
+
+  function handleMouseUp(e) {
+    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX);
+    canMouseY = parseInt(e.clientY - offsetY);
+    isDragging = false;
+  }
+
+  function handleMouseOut(e) {
+    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX);
+    canMouseY = parseInt(e.clientY - offsetY);
+    // user has left the canvas, so clear the drag flag
+    isDragging = false;
+  }
+
+  function handleMouseMove(e) {
+    console.log("mousemove");
+    const canvas = document.getElementById("viewport");
+    const ctx = canvas.getContext("2d");
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX);
+    canMouseY = parseInt(e.clientY - offsetY);
+    // if the drag flag is set, clear the canvas and draw the image
+    if (isDragging && leftDisplayedImage) {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      console.log(leftDisplayedImage);
+      const myImage = new Image();
+      myImage.src = leftDisplayedImage.URL;
+      ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, 128, 120);
+    }
+  }
+
   function drawImage(imageURL, canvasID, scale) {
     const canvas = document.getElementById(canvasID);
 
@@ -193,6 +259,7 @@ export default function Dropzone() {
 
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
       console.log("Image is drawn");
+      console.log(leftDisplayedImage);
     }
     ctx.scale(scale, scale);
     console.log(Image);
@@ -223,6 +290,8 @@ export default function Dropzone() {
     zoomLevel2 -= 0.2;
     drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
   }
+
+  // Print command
 
   function print() {
     const iframe = document.createElement('iframe');
@@ -266,9 +335,6 @@ export default function Dropzone() {
   //////////////////////////
 
   async function testWasm() {
-    document.getElementById("progressIndicator").classList.toggle('show', true);
-    document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
-
     let bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
     console.log(myWasmModule.FS.readdir('./'));
@@ -308,11 +374,17 @@ export default function Dropzone() {
     }
     setFiles(tempArray);
 
-    document.getElementById("progressIndicator").value = 100;
 
     document.getElementById("rightCanvas").classList.toggle('show', true);
     await new Promise(r => setTimeout(r, 500));
     document.getElementById("progressIndicator").classList.toggle('show', false);
+  }
+
+  async function deleteBackground() {
+    document.getElementById("progressIndicator").classList.toggle('show', true);
+    document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
+    await testWasm();
+    document.getElementById("progressIndicator").value = 100;
   }
 
   async function downloadAllZip() {
@@ -359,7 +431,7 @@ export default function Dropzone() {
     <div>
       <div id='titleBar'>
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
-        <h2>{ langs[siteLang]["title"] }</h2>
+        <h2>{langs[siteLang]["title"]}</h2>
         <div id='langIcons'>
           <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "en", { path: '/' })} />
           <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "hu", { path: '/' })} />
@@ -389,7 +461,7 @@ export default function Dropzone() {
       <div id='controls'>
         <Button variant='contained' component='label'>
           <Icon component={FileUploadIcon} />
-          { langs[siteLang]["upload"] }
+          {langs[siteLang]["upload"]}
           <input
             id='inputField'
             type="file"
@@ -402,23 +474,23 @@ export default function Dropzone() {
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
           <Icon component={FileDownloadIcon} />
-         { langs[siteLang]["download"] }
+          {langs[siteLang]["download"]}
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
-          { langs[siteLang]["print"] }
+          {langs[siteLang]["print"]}
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
+        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={deleteBackground}>
           <Icon component={GradientIcon} />
-          { langs[siteLang]["delete_bg"] }
+          {langs[siteLang]["delete_bg"]}
         </Button>
         <Button sx={{ mx: 1 }} className='controllButton' disabled={pdfButtonDisabled} type='button' variant='contained' onClick={createPDF}>
           <Icon component={PictureAsPdfIcon} />
-          { langs[siteLang]["create_pdf"] }
+          {langs[siteLang]["create_pdf"]}
         </Button>
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
-        {files.length === 0 && (<p id='instructions'>{ langs[siteLang]["upload_instruction"] }</p>)}
+        {files.length === 0 && (<p id='instructions'>{langs[siteLang]["upload_instruction"]}</p>)}
         <CardsDisplay
           cookies={cookies}
           siteLang={siteLang}
