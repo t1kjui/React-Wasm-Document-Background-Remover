@@ -46,11 +46,15 @@ body {
 #canvas_wrapper {
   margin: auto;
   padding: 10px;
+  padding-bottom: 11px;
   height:10vh;
   width: 80vw;
 
   display: flex;
   justify-content: center;
+
+  background-color: ghostwhite;
+  filter: drop-shadow(0 2 0.75rem ghostwhite);
 
   transition: all .5s ease-in-out;
 }
@@ -175,13 +179,13 @@ body {
     position: relative;
     margin: auto;
     z-index: 3;
-    background-color: whitesmoke;
+    background-color: silver;
 
     margin-top: 1%;
     height: 19vh;
     width: 90vw;
 
-    border: 5px dashed teal;
+    border: 5px dashed grey;
     border-radius: 5px;
 
     display: flex;

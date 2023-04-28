@@ -63,7 +63,7 @@ export default function ImageCard({ cookies, siteLang, files, file, removeFile, 
 
   function setBorderColor() {
     if (leftDisplayedImage === file) {
-      return "2px solid yellow"
+      return "2px solid #1E88E5"
     }
   }
 

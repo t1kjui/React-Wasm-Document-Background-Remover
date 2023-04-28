@@ -1,7 +1,11 @@
+// React element imports
 import React from "react";
 import { useState, useEffect } from "react"
+
+// Custom CSS imports
 import './Dropzone.css'
 
+// Material UI element imports
 import { Button, Icon } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
@@ -9,16 +13,21 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GradientIcon from '@mui/icons-material/Gradient';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
-
+// NPM module imports
 import { useCookies } from 'react-cookie';
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
 import CardsDisplay from "./CardsDisplay";
+
+// The custom C++ algorithm exported to WASM
 import wasmModule from "./customAlghoritm.mjs";
 
+// Translated texts are stored in a JSON and are dynamically displayed with the given user preference
 import langs from "./langs.json"
 
 export default function Dropzone() {
+
+  // Setting initial use states
   const [files, setFiles] = useState([]);
   const [leftDisplayedImage, setLeftDisplayedImage] = useState(null);
   const [rightDisplayedImage, setRightDisplayedImage] = useState(null);
@@ -28,6 +37,7 @@ export default function Dropzone() {
   const [deleteBackgroundButtonDisabled, setDeleteBackgroundButtonDisabled] = useState();
   const [pdfButtonDisabled, setPdfButtonDisabled] = useState();
 
+  // Setting the initial cookie and cookie handler
   const [cookies, setCookie] = useCookies(['lang']);
   const [siteLang, setSiteLang] = useState("hu");
 
@@ -216,7 +226,6 @@ export default function Dropzone() {
     let offsetY = canvasOffset.top;
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
-    // user has left the canvas, so clear the drag flag
     isDragging = false;
   }
 
@@ -235,7 +244,6 @@ export default function Dropzone() {
     // if the drag flag is set, clear the canvas and draw the image
     if (isDragging && leftDisplayedImage) {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      console.log(leftDisplayedImage);
       const myImage = new Image();
       myImage.src = leftDisplayedImage.URL;
       ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, 128, 120);
@@ -291,12 +299,10 @@ export default function Dropzone() {
     drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
   }
 
-  // Print command
-
+  // Print command using
   function print() {
     const iframe = document.createElement('iframe');
 
-    // Make it hidden
     iframe.style.height = 0;
     iframe.style.visibility = 'hidden';
     iframe.style.width = 0;
@@ -306,14 +312,12 @@ export default function Dropzone() {
     document.body.appendChild(iframe);
 
     iframe.addEventListener('load', () => {
-      // Clone the image
       const image = document.createElement('img');
       image.src = leftDisplayedImage.URL;
       console.log(leftDisplayedImage);
       image.style.maxWidth = '100%';
       console.log(image);
 
-      // Append the image to the iframe's body
       const body = iframe.contentDocument.body;
       body.style.textAlign = 'center';
       body.appendChild(image);
@@ -335,14 +339,19 @@ export default function Dropzone() {
   //////////////////////////
 
   async function testWasm() {
-    let bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
+    // Turning the file object into a Uint8Array to be inserted into the virtual file system
+    const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
-    console.log(myWasmModule.FS.readdir('./'));
-    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
-    let result = await myWasmModule.FS.readFile("testRGB.bmp");
-    let returnFile = new File([result], "demoFile.bmp", { type: "image/bmp" });
-    let returnURL = URL.createObjectURL(returnFile);
 
+    // Calling the C function on the newly inserted file and reading out the generated image
+    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
+    const result = await myWasmModule.FS.readFile("testRGB.bmp");
+
+    // Creating a new File object and reference URL
+    const returnFile = new File([result], "demoFile.bmp", { type: "image/bmp" });
+    const returnURL = URL.createObjectURL(returnFile);
+
+    // Displaying newly created image
     const canvas = document.getElementById("cropViewport");
 
     canvas.width = canvas.clientWidth;
@@ -362,7 +371,7 @@ export default function Dropzone() {
       console.log("Image is drawn");
     }
 
-
+    // Updateing the files array with new image
     let tempArray = []
     for (let i = 0; i < files.length; i++) {
       if (leftDisplayedImage.URL === files[i].URL) {
@@ -374,7 +383,7 @@ export default function Dropzone() {
     }
     setFiles(tempArray);
 
-
+    // Animating the canvas reveal
     document.getElementById("rightCanvas").classList.toggle('show', true);
     await new Promise(r => setTimeout(r, 500));
     document.getElementById("progressIndicator").classList.toggle('show', false);
@@ -387,14 +396,13 @@ export default function Dropzone() {
     document.getElementById("progressIndicator").value = 100;
   }
 
+  // Generating ZIP via downloadZIP package
   async function downloadAllZip() {
-
     if (files.length > 1) {
       var downloadList = [];
       files.forEach(file => downloadList.push(file.fileObject));
       console.log(downloadList);
       const blob = await downloadZip(downloadList).blob();
-
       const link = document.createElement("a")
       link.href = URL.createObjectURL(blob)
       link.download = "WASM_Magick.zip"
@@ -410,10 +418,11 @@ export default function Dropzone() {
     }
   }
 
+  // Creating new PDF via jsPDF
   function createPDF() {
     const doc = new jsPDF();
     for (let i = 0; i < files.length; i++) {
-      let newImage = new Image();
+      const newImage = new Image();
       newImage.src = files[i].URL;
       if (newImage.width > newImage.height) {
         doc.addPage([newImage.width, newImage.height], 'l');
@@ -503,6 +512,5 @@ export default function Dropzone() {
           setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>
     </div>
-
   )
 }
