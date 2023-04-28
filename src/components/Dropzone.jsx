@@ -1,6 +1,9 @@
+// @author: Dávid Attila
+// @date: 2023
+// @contact: t1kjui@inf.elte.hu
+
 // React element imports
-import React from "react";
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 
 // Custom CSS imports
 import './Dropzone.css'
@@ -65,7 +68,7 @@ export default function Dropzone() {
   useEffect(() => {
     console.log(files);
 
-    if (files.length != 0) {
+    if (files.length !== 0) {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
 
@@ -115,9 +118,7 @@ export default function Dropzone() {
     }
   }, [leftDisplayedImage])
 
-  /////////////////////
-  // File operations //
-  /////////////////////
+  // File operations
 
   // File drag-n-drop
   async function dropHandler(ev) {
@@ -129,9 +130,9 @@ export default function Dropzone() {
     document.getElementById("overlay").style.display = "none";
 
     if (ev.dataTransfer.items) {
-      for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+      for (let i = 0; i < ev.dataTransfer.items.length; i+=1) {
         if (ev.dataTransfer.items[i].kind === 'file') {
-          var newFile = ev.dataTransfer.items[i].getAsFile();
+          const newFile = ev.dataTransfer.items[i].getAsFile();
           if (validateFile(newFile)) {
             addNewFile({
               fileObject: newFile,
@@ -140,14 +141,14 @@ export default function Dropzone() {
             });
             console.log('... file[' + i + '].name = ' + newFile.name + ' is added.');
           } else {
-            //TODO handle errror
+            // TODO handle errror
             console.log('file format not supported!');
           }
         }
       }
     } else {
-      //Preventing text inserts
-      for (var j = 0; j < ev.dataTransfer.files.length; j++) {
+      // Preventing text inserts
+      for (let j = 0; j < ev.dataTransfer.files.length; j+=1) {
         console.log('... file[' + j + '].name = ' + ev.dataTransfer.files[j].name);
         console.log('Only files allowed!');
       }
@@ -155,7 +156,7 @@ export default function Dropzone() {
   }
 
   function removeFile(file) {
-    var filtered = files.filter(item => item !== file);
+    const filtered = files.filter(item => item !== file);
     setFiles(filtered);
     console.log(files);
   }
@@ -180,8 +181,8 @@ export default function Dropzone() {
   }
 
   function uploadButtonHandler(ev) {
-    for (var i = 0; i < ev.target.files.length; i++) {
-      var newFile = ev.target.files[i];
+    for (let i = 0; i < ev.target.files.length; i+=1) {
+      const newFile = ev.target.files[i];
       if (validateFile(newFile)) {
         addNewFile({
           fileObject: newFile,
@@ -192,9 +193,7 @@ export default function Dropzone() {
     }
   }
 
-  //////////////////////
-  // Canvas controlls //
-  //////////////////////
+  // Canvas controlls
   let zoomLevel1 = 1;
   let zoomLevel2 = 1;
 
@@ -203,29 +202,29 @@ export default function Dropzone() {
   let canMouseY;
 
   function handleMouseDown(e) {
-    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
-    let offsetX = canvasOffset.left;
-    let offsetY = canvasOffset.top;
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    const canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    const offsetX = canvasOffset.left;
+    const offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX, 10);
+    canMouseY = parseInt(e.clientY - offsetY, 10);
     isDragging = true;
   }
 
   function handleMouseUp(e) {
-    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
-    let offsetX = canvasOffset.left;
-    let offsetY = canvasOffset.top;
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    const canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    const offsetX = canvasOffset.left;
+    const offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX, 10);
+    canMouseY = parseInt(e.clientY - offsetY, 10);
     isDragging = false;
   }
 
   function handleMouseOut(e) {
-    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
-    let offsetX = canvasOffset.left;
-    let offsetY = canvasOffset.top;
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    const canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    const offsetX = canvasOffset.left;
+    const offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX, 10);
+    canMouseY = parseInt(e.clientY - offsetY, 10);
     isDragging = false;
   }
 
@@ -236,11 +235,11 @@ export default function Dropzone() {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    let canvasOffset = document.getElementById("viewport").getBoundingClientRect();
-    let offsetX = canvasOffset.left;
-    let offsetY = canvasOffset.top;
-    canMouseX = parseInt(e.clientX - offsetX);
-    canMouseY = parseInt(e.clientY - offsetY);
+    const canvasOffset = document.getElementById("viewport").getBoundingClientRect();
+    const offsetX = canvasOffset.left;
+    const offsetY = canvasOffset.top;
+    canMouseX = parseInt(e.clientX - offsetX, 10);
+    canMouseY = parseInt(e.clientY - offsetY, 10);
     // if the drag flag is set, clear the canvas and draw the image
     if (isDragging && leftDisplayedImage) {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -261,11 +260,11 @@ export default function Dropzone() {
 
     myImage.onload = function() {
       ctx.imageSmoothingEnabled = false;
-      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
-      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
+      const correctionScale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      const x = (canvas.width / 2) - (myImage.width / 2) * correctionScale;
+      const y = (canvas.height / 2) - (myImage.height / 2) * correctionScale;
 
-      ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
+      ctx.drawImage(myImage, x, y, myImage.width * correctionScale, myImage.height * correctionScale);
       console.log("Image is drawn");
       console.log(leftDisplayedImage);
     }
@@ -299,7 +298,7 @@ export default function Dropzone() {
     drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
   }
 
-  // Print command using
+  // Print command using via displaying the iamge via a separate iframe
   function print() {
     const iframe = document.createElement('iframe');
 
@@ -318,7 +317,7 @@ export default function Dropzone() {
       image.style.maxWidth = '100%';
       console.log(image);
 
-      const body = iframe.contentDocument.body;
+      const { body } = iframe.contentDocument;
       body.style.textAlign = 'center';
       body.appendChild(image);
 
@@ -334,9 +333,7 @@ export default function Dropzone() {
 
   }
 
-  //////////////////////////
-  // WASM command section //
-  //////////////////////////
+  // WASM command section
 
   async function testWasm() {
     // Turning the file object into a Uint8Array to be inserted into the virtual file system
@@ -363,17 +360,17 @@ export default function Dropzone() {
 
     myImage.onload = function() {
       ctx.imageSmoothingEnabled = false;
-      let scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      let x = (canvas.width / 2) - (myImage.width / 2) * scale;
-      let y = (canvas.height / 2) - (myImage.height / 2) * scale;
+      const scale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      const x = (canvas.width / 2) - (myImage.width / 2) * scale;
+      const y = (canvas.height / 2) - (myImage.height / 2) * scale;
 
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
       console.log("Image is drawn");
     }
 
     // Updateing the files array with new image
-    let tempArray = []
-    for (let i = 0; i < files.length; i++) {
+    const tempArray = []
+    for (let i = 0; i < files.length; i+=1) {
       if (leftDisplayedImage.URL === files[i].URL) {
         tempArray[i] = { fileObject: returnFile, URL: URL.createObjectURL(returnFile) };
         setRightDisplayedImage(tempArray[i]);
@@ -399,9 +396,8 @@ export default function Dropzone() {
   // Generating ZIP via downloadZIP package
   async function downloadAllZip() {
     if (files.length > 1) {
-      var downloadList = [];
+      const downloadList = [];
       files.forEach(file => downloadList.push(file.fileObject));
-      console.log(downloadList);
       const blob = await downloadZip(downloadList).blob();
       const link = document.createElement("a")
       link.href = URL.createObjectURL(blob)
@@ -421,7 +417,7 @@ export default function Dropzone() {
   // Creating new PDF via jsPDF
   function createPDF() {
     const doc = new jsPDF();
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i+=1) {
       const newImage = new Image();
       newImage.src = files[i].URL;
       if (newImage.width > newImage.height) {
@@ -440,7 +436,7 @@ export default function Dropzone() {
     <div>
       <div id='titleBar'>
         <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
-        <h2>{langs[siteLang]["title"]}</h2>
+        <h2>{langs[siteLang].title}</h2>
         <div id='langIcons'>
           <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "en", { path: '/' })} />
           <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "hu", { path: '/' })} />
@@ -464,13 +460,13 @@ export default function Dropzone() {
       </div>
 
       <div id="progressIndicatorWrapper">
-        <progress id="progressIndicator" value="0" max="100"></progress>
+        <progress id="progressIndicator" value="0" max="100" />
       </div>
 
       <div id='controls'>
         <Button variant='contained' component='label'>
           <Icon component={FileUploadIcon} />
-          {langs[siteLang]["upload"]}
+          {langs[siteLang].upload}
           <input
             id='inputField'
             type="file"
@@ -483,23 +479,23 @@ export default function Dropzone() {
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
           <Icon component={FileDownloadIcon} />
-          {langs[siteLang]["download"]}
+          {langs[siteLang].download}
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
-          {langs[siteLang]["print"]}
+          {langs[siteLang].print}
         </Button>
         <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={deleteBackground}>
           <Icon component={GradientIcon} />
-          {langs[siteLang]["delete_bg"]}
+          {langs[siteLang].delete_bg}
         </Button>
         <Button sx={{ mx: 1 }} className='controllButton' disabled={pdfButtonDisabled} type='button' variant='contained' onClick={createPDF}>
           <Icon component={PictureAsPdfIcon} />
-          {langs[siteLang]["create_pdf"]}
+          {langs[siteLang].create_pdf}
         </Button>
       </div>
       <div id="cardsDisplay" onDrop={dropHandler} onDragOver={dragoverHandler}>
-        {files.length === 0 && (<p id='instructions'>{langs[siteLang]["upload_instruction"]}</p>)}
+        {files.length === 0 && (<p id='instructions'>{langs[siteLang].upload_instruction}</p>)}
         <CardsDisplay
           cookies={cookies}
           siteLang={siteLang}
@@ -507,7 +503,7 @@ export default function Dropzone() {
           removeFile={removeFile}
           setFiles={setFiles}
           drawImage={drawImage}
-          testWasm={testWasm}
+          unnamed functiontestWasm={testWasm}
           leftDisplayedImage={leftDisplayedImage}
           setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>
