@@ -1,6 +1,7 @@
-// @author: Dávid Attila
-// @date: 2023
-// @contact: t1kjui@inf.elte.hu
+/*
+ * @author: Dávid Attila
+ * @date: 2033
+ */
 
 // React element imports
 import React, { useState, useEffect } from "react"
@@ -58,6 +59,7 @@ export default function Dropzone() {
     setPdfButtonDisabled(true);
   }, []);
 
+  // Setting initial cookie
   useEffect(() => {
     if (cookies.lang) {
       setSiteLang(cookies.lang);
@@ -66,14 +68,11 @@ export default function Dropzone() {
 
   // Log changes in files array
   useEffect(() => {
-    console.log(files);
-
     if (files.length !== 0) {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
 
       setLeftDisplayedImage(files[0]);
-      console.log(files[0]);
       drawImage(files[0].URL, "viewport", 1);
 
       setDownloadButtonDisabled(false);
@@ -94,8 +93,6 @@ export default function Dropzone() {
   }, [files.length])
 
   useEffect(() => {
-    console.log("The new left image");
-    console.log(leftDisplayedImage);
     const viewport = document.getElementById("viewport");
     viewport.addEventListener("mousedown", (event) => handleMouseDown(event));
     viewport.addEventListener("mouseup", (event) => handleMouseUp(event));
@@ -139,7 +136,6 @@ export default function Dropzone() {
               URL: URL.createObjectURL(newFile),
               bgRemoved: false
             });
-            console.log('... file[' + i + '].name = ' + newFile.name + ' is added.');
           } else {
             // TODO handle errror
             console.log('file format not supported!');
@@ -149,7 +145,6 @@ export default function Dropzone() {
     } else {
       // Preventing text inserts
       for (let j = 0; j < ev.dataTransfer.files.length; j+=1) {
-        console.log('... file[' + j + '].name = ' + ev.dataTransfer.files[j].name);
         console.log('Only files allowed!');
       }
     }
@@ -158,11 +153,9 @@ export default function Dropzone() {
   function removeFile(file) {
     const filtered = files.filter(item => item !== file);
     setFiles(filtered);
-    console.log(files);
   }
 
   function dragoverHandler(ev) {
-    console.log('File(s) in drop zone');
     ev.preventDefault();
   }
 
@@ -193,7 +186,9 @@ export default function Dropzone() {
     }
   }
 
-  // Canvas controlls
+  /* Canvas Controlls
+   *
+   */
   let zoomLevel1 = 1;
   let zoomLevel2 = 1;
 
@@ -229,7 +224,6 @@ export default function Dropzone() {
   }
 
   function handleMouseMove(e) {
-    console.log("mousemove");
     const canvas = document.getElementById("viewport");
     const ctx = canvas.getContext("2d");
     const canvasWidth = canvas.width;
@@ -245,7 +239,13 @@ export default function Dropzone() {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       const myImage = new Image();
       myImage.src = leftDisplayedImage.URL;
-      ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, 128, 120);
+      // ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, myImage.width, myImage.height);
+
+      const correctionScale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
+      // const x = (canvas.width / 2) - (myImage.width / 2) * correctionScale;
+      // const y = (canvas.height / 2) - (myImage.height / 2) * correctionScale;
+
+      ctx.drawImage(myImage, canMouseX - canvas.width / 2, canMouseY - canvas.height / 2, myImage.width * correctionScale, myImage.height * correctionScale);
     }
   }
 
@@ -266,10 +266,8 @@ export default function Dropzone() {
 
       ctx.drawImage(myImage, x, y, myImage.width * correctionScale, myImage.height * correctionScale);
       console.log("Image is drawn");
-      console.log(leftDisplayedImage);
     }
     ctx.scale(scale, scale);
-    console.log(Image);
   }
 
   function clearCanvas(canvasID) {
@@ -298,6 +296,11 @@ export default function Dropzone() {
     drawImage(rightDisplayedImage.URL, "cropViewport", zoomLevel2);
   }
 
+  function zoomReset() {
+    zoomLevel1 = 1;
+    drawImage(leftDisplayedImage.URL, "viewport", zoomLevel1);
+  }
+
   // Print command using via displaying the iamge via a separate iframe
   function print() {
     const iframe = document.createElement('iframe');
@@ -313,9 +316,7 @@ export default function Dropzone() {
     iframe.addEventListener('load', () => {
       const image = document.createElement('img');
       image.src = leftDisplayedImage.URL;
-      console.log(leftDisplayedImage);
       image.style.maxWidth = '100%';
-      console.log(image);
 
       const { body } = iframe.contentDocument;
       body.style.textAlign = 'center';
@@ -447,6 +448,7 @@ export default function Dropzone() {
           <canvas id="viewport" />
           <div className="canvasInputWrapper">
             <input className="canvasInput" type="button" id="plus1" onClick={zoom1} value="+" />
+            <input className="canvasInput" type="button" id="reset" onClick={zoomReset} value="[]"/>
             <input className="canvasInput" type="button" id="minus1" onClick={zoomOut1} value="-" />
           </div>
         </div>
@@ -503,7 +505,7 @@ export default function Dropzone() {
           removeFile={removeFile}
           setFiles={setFiles}
           drawImage={drawImage}
-          unnamed functiontestWasm={testWasm}
+          testWasm={testWasm}
           leftDisplayedImage={leftDisplayedImage}
           setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>
