@@ -382,6 +382,26 @@ export default function Dropzone() {
 
   // WASM command section
 
+  async function testConvert() {
+    const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
+    myWasmModule.FS.writeFile("testFile.jpg", bmpBuffer);
+    await myWasmModule.ccall("convert_to_bmp", ["number"], ["string"], ["./testFile.jpg"]);
+
+    const result1 = await myWasmModule.FS.readFile("bmpImage.bmp");
+    console.log(result1);
+    const returnFile1 = new File([result1], "testFile.bmp", {type: "image/bmp"});
+    const returnURL1 = URL.createObjectURL(returnFile1);
+    console.log(returnURL1);
+
+    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./bmpImage.bmp"]);
+    const result = await myWasmModule.FS.readFile("test.bmp");
+
+    console.log(result);
+    const returnFile = new File([result], "testFile.bmp", {type: "image/bmp"});
+    const returnURL = URL.createObjectURL(returnFile);
+    console.log(returnURL);
+  }
+
   async function testWasm() {
     // Turning the file object into a Uint8Array to be inserted into the virtual file system
     const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
@@ -438,6 +458,10 @@ export default function Dropzone() {
     document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
     await testWasm();
     document.getElementById("progressIndicator").value = 100;
+  }
+
+  async function handleTestConvert() {
+    await testConvert();
   }
 
   // Generating ZIP via downloadZIP package
@@ -539,11 +563,11 @@ export default function Dropzone() {
           <Icon component={FileDownloadIcon} />
           {langs[siteLang].download}
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
+        <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={handleTestConvert}>
           <Icon component={PrintIcon} />
           {langs[siteLang].print}
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={deleteBackground}>
+        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
           <Icon component={GradientIcon} />
           {langs[siteLang].delete_bg}
         </Button>

@@ -7,8 +7,8 @@ export default function ImageCard({ cookies, siteLang, files, file, removeFile, 
   function swapLeft(ev) {
     ev.stopPropagation()
     if (files.indexOf(file) !== 0) {
-      var tmpFiles = [...files];
-      var position = tmpFiles.indexOf(file);
+      let tmpFiles = [...files];
+      let position = tmpFiles.indexOf(file);
 
       [tmpFiles[position - 1], tmpFiles[position]] = [tmpFiles[position], tmpFiles[position - 1]]
 
@@ -25,8 +25,8 @@ export default function ImageCard({ cookies, siteLang, files, file, removeFile, 
   function swapRight(ev) {
     ev.stopPropagation()
     if (files.indexOf(file) !== files.length - 1) {
-      var tmpFiles = [...files];
-      var position = tmpFiles.indexOf(file);
+      let tmpFiles = [...files];
+      let position = tmpFiles.indexOf(file);
 
       [tmpFiles[position + 1], tmpFiles[position]] = [tmpFiles[position], tmpFiles[position + 1]]
 

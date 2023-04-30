@@ -3,6 +3,8 @@
 # WASM build command
 em++ *.cpp -o customAlghoritm.mjs -s ENVIRONMENT='web' -s WASM=0 -s EXPORTED_RUNTIME_METHODS="['FS','ccall']" -sEXPORTED_FUNCTIONS=_delete_background -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s USE_ES6_IMPORT_META=0 -s EXPORT_NAME='wasmModule' -O1
 
+em++ main.cpp Bitmap_Vall_Gyak/Greyscale\ Document\ Colour\ Filter/Image.cpp Bitmap_Vall_Gyak/Greyscale\ Document\ Colour\ Filter/CustomAlgorithm.cpp -o customAlghoritm.mjs -s ENVIRONMENT='web' -s WASM=0 -s EXPORTED_RUNTIME_METHODS="['FS','ccall']" -sEXPORTED_FUNCTIONS=_delete_background -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s USE_ES6_IMPORT_META=0 -s EXPORT_NAME='wasmModule' -O1 
+
 > This is a Javascript template for [esbuild create react app](https://github.com/awran5/esbuild-create-react-app) project.
 
 ## What is inside?
