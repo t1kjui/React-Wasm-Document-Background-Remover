@@ -18,10 +18,10 @@ import GradientIcon from '@mui/icons-material/Gradient';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 // NPM module imports
-import { Link } from "react-router-dom"
-import { useCookies } from 'react-cookie';
 import { jsPDF } from "jspdf";
 import { downloadZip } from "client-zip"
+import Swal from 'sweetalert2'
+
 import CardsDisplay from "./CardsDisplay";
 
 // The custom C++ algorithm exported to WASM
@@ -30,7 +30,7 @@ import wasmModule from "./customAlghoritm.mjs";
 // Translated texts are stored in a JSON and are dynamically displayed with the given user preference
 import langs from "./langs.json"
 
-export default function Dropzone() {
+export default function Dropzone({ cookies, siteLang }) {
 
   // Setting initial use states
   const [files, setFiles] = useState([]);
@@ -42,11 +42,7 @@ export default function Dropzone() {
   const [deleteBackgroundButtonDisabled, setDeleteBackgroundButtonDisabled] = useState();
   const [pdfButtonDisabled, setPdfButtonDisabled] = useState();
 
-  // Setting the initial cookie and cookie handler
-  const [cookies, setCookie] = useCookies(['lang']);
-  const [siteLang, setSiteLang] = useState("hu");
-
-  const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp", "image/tiff"]
+  const supportedFileTypes = ["image/png", "image/jpeg", "image/bmp"]
 
   useEffect(() => {
     wasmModule().then((Module) => {
@@ -59,13 +55,6 @@ export default function Dropzone() {
     setDeleteBackgroundButtonDisabled(true);
     setPdfButtonDisabled(true);
   }, []);
-
-  // Setting initial cookie
-  useEffect(() => {
-    if (cookies.lang) {
-      setSiteLang(cookies.lang);
-    }
-  }, [cookies]);
 
   // Log changes in files array
   useEffect(() => {
@@ -111,16 +100,9 @@ export default function Dropzone() {
 
   useEffect(() => {
     // Prevent first load error
-    if (leftDisplayedImage !== null) {
-      if (leftDisplayedImage.fileObject.type === "image/bmp") {
-        setDeleteBackgroundButtonDisabled(false);
-      } else {
-        setDeleteBackgroundButtonDisabled(true);
-      }
-      if (rightDisplayedImage != null) {
-        clearCanvas("cropViewport");
-        document.getElementById("rightCanvas").classList.toggle('show', false);
-      }
+    if (rightDisplayedImage != null) {
+      clearCanvas("cropViewport");
+      document.getElementById("rightCanvas").classList.toggle('show', false);
     }
   }, [leftDisplayedImage])
 
@@ -146,8 +128,12 @@ export default function Dropzone() {
               bgRemoved: false
             });
           } else {
-            // TODO handle errror
-            console.log('file format not supported!');
+            Swal.fire({
+              icon: 'error',
+              title: langs[siteLang].popup.title,
+              text: langs[siteLang].popup.text,
+              footer: langs[siteLang].popup.text,
+            })
           }
         }
       }
@@ -196,6 +182,14 @@ export default function Dropzone() {
           URL: URL.createObjectURL(newFile),
           bgRemoved: false
         });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'File format is not supported!',
+          text: 'Only png, jpeg and bmp images are supported on the site!',
+          footer: 'For more information check out the about page'
+        })
+
       }
     }
   }
@@ -382,37 +376,23 @@ export default function Dropzone() {
 
   // WASM command section
 
-  async function testConvert() {
-    const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
-    myWasmModule.FS.writeFile("testFile.jpg", bmpBuffer);
-    await myWasmModule.ccall("convert_to_bmp", ["number"], ["string"], ["./testFile.jpg"]);
-
-    const result1 = await myWasmModule.FS.readFile("bmpImage.bmp");
-    console.log(result1);
-    const returnFile1 = new File([result1], "testFile.bmp", {type: "image/bmp"});
-    const returnURL1 = URL.createObjectURL(returnFile1);
-    console.log(returnURL1);
-
-    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./bmpImage.bmp"]);
-    const result = await myWasmModule.FS.readFile("test.bmp");
-
-    console.log(result);
-    const returnFile = new File([result], "testFile.bmp", {type: "image/bmp"});
-    const returnURL = URL.createObjectURL(returnFile);
-    console.log(returnURL);
-  }
-
-  async function testWasm() {
+  async function deleteBackround() {
     // Turning the file object into a Uint8Array to be inserted into the virtual file system
     const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
-    myWasmModule.FS.writeFile("testFile.bmp", bmpBuffer);
+    myWasmModule.FS.writeFile("input_file", bmpBuffer);
+
+    if (leftDisplayedImage.fileObject.type !== "image/bmp") {
+      await myWasmModule.ccall("convert_to_bmp", ["number"], ["string"], ["./input_file"]);
+      await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./bmp_out.bmp"]);
+    } else {
+      await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./input_file"]);
+    }
 
     // Calling the C function on the newly inserted file and reading out the generated image
-    await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./testFile.bmp"]);
-    const result = await myWasmModule.FS.readFile("testRGB.bmp");
+    const result = await myWasmModule.FS.readFile("bmp_out.bmp");
 
     // Creating a new File object and reference URL
-    const returnFile = new File([result], "demoFile.bmp", { type: "image/bmp" });
+    const returnFile = new File([result], `${leftDisplayedImage.fileObject.name}`, { type: leftDisplayedImage.fileObject.type });
     const returnURL = URL.createObjectURL(returnFile);
 
     // Displaying newly created image
@@ -453,15 +433,11 @@ export default function Dropzone() {
     document.getElementById("progressIndicator").classList.toggle('show', false);
   }
 
-  async function deleteBackground() {
+  async function handleDeleteBackground() {
     document.getElementById("progressIndicator").classList.toggle('show', true);
     document.getElementById("progressIndicator").value = Math.floor(Math.random() * 35);
-    await testWasm();
+    await deleteBackround();
     document.getElementById("progressIndicator").value = 100;
-  }
-
-  async function handleTestConvert() {
-    await testConvert();
   }
 
   // Generating ZIP via downloadZIP package
@@ -492,10 +468,10 @@ export default function Dropzone() {
       const newImage = new Image();
       newImage.src = files[i].URL;
       if (newImage.width > newImage.height) {
-        doc.addPage([newImage.width, newImage.height], 'l');
+        doc.addPage();
         doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
       } else {
-        doc.addPage([newImage.width, newImage.height], 'w');
+        doc.addPage('w');
         doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
       }
     }
@@ -510,18 +486,6 @@ export default function Dropzone() {
         onDragEnd={overlayDragEndHandler}
         onDragLeave={overlayDragEndHandler}
         onDrop={overlayDragEndHandler} />
-      <div id='titleBar'>
-        <img id='wasmLogo' src='./WebAssembly_Logo.svg' alt='WASM Logo' draggable={false} />
-        <h2>{langs[siteLang].title}</h2>
-        <Link to="about">
-          <button type="button" >Something</button>
-        </Link>
-
-        <div id='langIcons'>
-          <img className="langFlag" alt="" src="./GB.svg" draggable={false} onClick={() => setCookie('lang', "en", { path: '/' })} />
-          <img className="langFlag" alt="" src="./HU.svg" draggable={false} onClick={() => setCookie('lang', "hu", { path: '/' })} />
-        </div>
-      </div>
       <div id="canvas_wrapper">
         <div id="leftCanvas">
           <canvas id="viewport" />
@@ -546,7 +510,7 @@ export default function Dropzone() {
       </div>
 
       <div id='controls'>
-        <Button variant='contained' component='label'>
+        <Button className='controllButton' variant='contained' component='label'>
           <Icon component={FileUploadIcon} />
           {langs[siteLang].upload}
           <input
@@ -559,15 +523,15 @@ export default function Dropzone() {
               uploadButtonHandler(event)
             }} />
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
+        <Button sx={{ mx: 1 }} className='controllButton' type='button' disabled={downloadButtonDisabled} variant='contained' onClick={downloadAllZip}>
           <Icon component={FileDownloadIcon} />
           {langs[siteLang].download}
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={printButtonDisabled} variant='contained' onClick={handleTestConvert}>
+        <Button sx={{ mx: 1 }} className='controllButton' type='button' disabled={printButtonDisabled} variant='contained' onClick={print}>
           <Icon component={PrintIcon} />
           {langs[siteLang].print}
         </Button>
-        <Button sx={{ mx: 1 }} type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={testWasm}>
+        <Button sx={{ mx: 1 }} className='controllButton' type='button' disabled={deleteBackgroundButtonDisabled} variant='contained' onClick={handleDeleteBackground}>
           <Icon component={GradientIcon} />
           {langs[siteLang].delete_bg}
         </Button>
@@ -585,7 +549,7 @@ export default function Dropzone() {
           removeFile={removeFile}
           setFiles={setFiles}
           drawImage={drawImage}
-          testWasm={testWasm}
+          deleteBackround={deleteBackround}
           leftDisplayedImage={leftDisplayedImage}
           setLeftDisplayedImage={setLeftDisplayedImage} />
       </div>

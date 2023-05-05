@@ -1,0 +1,9 @@
+.textBox {
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    width: 70vw;
+    background: silver;
+    border-radius: 30px;
+}

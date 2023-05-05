@@ -2,7 +2,7 @@ import React from "react"
 import ImageCard from "./ImageCard"
 import { v4 as uuidv4 } from "uuid"
 
-export default function CardsDisplay({ cookies, siteLang, files, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
+export default function CardsDisplay({ cookies, siteLang, files, removeFile, setFiles, drawImage, deleteBackground, leftDisplayedImage, setLeftDisplayedImage }) {
     return (
         files.map(file => {
             return <ImageCard
@@ -16,7 +16,7 @@ export default function CardsDisplay({ cookies, siteLang, files, removeFile, set
                 removeFile={removeFile}
                 setFiles={setFiles}
                 drawImage={drawImage}
-                testWasm={testWasm}
+                deleteBackground={deleteBackground}
                 leftDisplayedImage={leftDisplayedImage}
                 setLeftDisplayedImage={setLeftDisplayedImage}
             />

@@ -12,8 +12,25 @@ extern "C" {
 		char* path = input_path;
 		Image img(path);
 		img.DeleteBackground();
-		img.WriteGreyscale("test.bmp");
-		img.Write("testRGB.bmp", true);
+		img.Write("bmp_out.bmp", true);
+		return 1;
+	}
+}
+
+extern "C" {
+	int convert_to_png(char* input_path) {
+		int width, height, bpp;
+		uint8_t* rgb_image = stbi_load(input_path, &width, &height, &bpp, 3);
+    stbi_write_png("png_out.png", width, height, 3, rgb_image, width*3);
+		return 1;
+	}
+}
+
+extern "C" {
+	int convert_to_jpg(char* input_path) {
+		int width, height, bpp;
+		uint8_t* rgb_image = stbi_load(input_path, &width, &height, &bpp, 3);
+    stbi_write_jpg("jpg_out.jpg", width, height, 3, rgb_image, 100);
 		return 1;
 	}
 }
@@ -22,7 +39,8 @@ extern "C" {
 	int convert_to_bmp(char* input_path) {
 		int width, height, bpp;
 		uint8_t* rgb_image = stbi_load(input_path, &width, &height, &bpp, 3);
-		stbi_write_bmp("bmpImage.bmp", width, height, 3, rgb_image);
+		stbi_write_bmp("bmp_out.bmp", width, height, 3, rgb_image);
 		return 1;
 	}
 }
+

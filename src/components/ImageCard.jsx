@@ -1,8 +1,7 @@
 import React from 'react'
 import './ImageCard.css'
-import langs from "./langs.json"
 
-export default function ImageCard({ cookies, siteLang, files, file, removeFile, setFiles, drawImage, testWasm, leftDisplayedImage, setLeftDisplayedImage }) {
+export default function ImageCard({ cookies, siteLang, files, file, removeFile, setFiles, drawImage, deleteBackground, leftDisplayedImage, setLeftDisplayedImage }) {
 
   function swapLeft(ev) {
     ev.stopPropagation()
@@ -46,14 +45,12 @@ export default function ImageCard({ cookies, siteLang, files, file, removeFile, 
       case "image/bmp":
         return <div className="imageFormat">BMP</div>
       case "image/jpeg":
-        return <div className="imageFormatError">
-          <span className="tooltiptext">{langs[siteLang]["tooltip"]}</span>
+        return <div className="imageFormat">
           JPEG
         </div>
       case "image/png":
-        return <div className="imageFormatError">
+        return <div className="imageFormat">
           PNG
-          <span className="tooltiptext">{langs[siteLang]["tooltip"]}</span>
         </div>
       default:
         console.log("unknown type");
@@ -65,10 +62,11 @@ export default function ImageCard({ cookies, siteLang, files, file, removeFile, 
     if (leftDisplayedImage === file) {
       return "2px solid #1E88E5"
     }
+    return ""
   }
 
   return (
-    <div style={{ backgroundImage: "url(" + file.URL + ")", border: setBorderColor() }} className='imageCard' onClick={handleDraw}>
+    <div style={{ backgroundImage: `url( ${file.URL})`, border: setBorderColor() }} className='imageCard' onClick={handleDraw}>
       <div className='imageCardTitle'>{file.fileObject.name}</div>
       <button type="button" className={"removeButton"} onClick={handleRemoveFile}>X </button>
       <div id="swapButtons">

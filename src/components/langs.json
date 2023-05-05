@@ -1,22 +1,44 @@
 {
-	"en": {
-		"title": "Document Background Remover Powered by WASM",
-		"upload": "Upload",
-		"download": "Download",
-    "print": "Print Image",
-    "delete_bg": "Delete Background",
-    "create_pdf": "Create PDF",
-    "upload_instruction": "Drag and drop images here...",
-    "tooltip": "The background can only be deleted on BMP files!"
-	},
-	"hu": {
-		"title": "WASM Dokumentum háttéreltávolító",
-		"upload": "Feltöltés",
-		"download": "Letöltés",
-    "print": "Nyomtatás",
-    "delete_bg": "Háttér eltávolítása",
-    "create_pdf": "PDF Generálás",
-    "upload_instruction": "Húzz képeket ide...",
-    "tooltip": "A háttér csak BMP fájlokon távolítható el!"
-	}
+        "en": {
+                "tab": {
+                        "home": "Background Remover"
+                },
+                "popup": {
+                        "title": "Fájl formátum nem támogatott!",
+                        "text": "Kizárólag png, jpeg és bmp képek támogatottak az oldalon!",
+                        "footer": "További információkért keresse meg az 'Oldalról' szekciót."
+                },
+                "title": "Document Background Remover Powered by WASM",
+                "home": "Home",
+                "about": "About",
+                "lang_button": "Language",
+                "upload": "Upload",
+                "download": "Download",
+                "print": "Print Image",
+                "delete_bg": "Delete Background",
+                "create_pdf": "Create PDF",
+                "upload_instruction": "Drag and drop images here...",
+                "tooltip": "The background can only be deleted on BMP files!"
+        },
+        "hu": {
+                "tab": {
+                        "home": "Háttér Eltávolító"
+                },
+                "popup": {
+                        "title": "Fájl formátum nem támogatott!",
+                        "text": "Kizárólag png, jpeg és bmp képek támogatottak az oldalon!",
+                        "footer": "További információkért keresse meg az 'Oldalról' szekciót."
+                },
+                "title": "WASM Dokumentum háttéreltávolító",
+                "home": "Otthon",
+                "about": "Az oldalról",
+                "lang_button": "Nyelv",
+                "upload": "Feltöltés",
+                "download": "Letöltés",
+            "print": "Nyomtatás",
+        "delete_bg": "Háttér eltávolítása",
+        "create_pdf": "PDF Generálás",
+        "upload_instruction": "Húzz képeket ide...",
+        "tooltip": "A háttér csak BMP fájlokon távolítható el!"
+    }
 }
