@@ -381,12 +381,16 @@ export default function Dropzone({ cookies, siteLang }) {
     const bmpBuffer = await leftDisplayedImage.fileObject.arrayBuffer().then(buff => { return new Uint8Array(buff) });
     myWasmModule.FS.writeFile("input_file", bmpBuffer);
 
+    let returnRatio;
     if (leftDisplayedImage.fileObject.type !== "image/bmp") {
       await myWasmModule.ccall("convert_to_bmp", ["number"], ["string"], ["./input_file"]);
-      await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./bmp_out.bmp"]);
+      returnRatio = await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./bmp_out.bmp"]);
     } else {
-      await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./input_file"]);
+      returnRatio = await myWasmModule.ccall("delete_background", ["number"], ["string"], ["./input_file"]);
     }
+
+    console.log("Return is")
+    console.log(returnRatio);
 
     // Calling the C function on the newly inserted file and reading out the generated image
     const result = await myWasmModule.FS.readFile("bmp_out.bmp");
@@ -412,7 +416,29 @@ export default function Dropzone({ cookies, siteLang }) {
       const y = (canvas.height / 2) - (myImage.height / 2) * scale;
 
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
+      //ctx.font = "20pt Calibri";
+      // ctx.fillText(`Megtakarítva:${returnRatio.toFixed(2) * 100}%`, canvas.width / 4, canvas.height - 20);
+
+      const txt = `Megtakarítva:${returnRatio.toFixed(2) * 100}%`;
+
+      drawTextBG(ctx, txt, "20pt Calibri", canvas.width / 4, canvas.height - 40, 10);
       console.log("Image is drawn");
+    }
+
+    function drawTextBG(ctx, txt, font, x, y, padding) {
+      ctx.font = font;
+      ctx.textBaseline = "top";
+      ctx.fillStyle = "#fff";
+
+      let width = ctx.measureText(txt).width;
+      ctx.fillRect(x, y, width + padding, parseInt(font, 10) + padding);
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#009ddf";
+      ctx.strokeRect(x, y, width + padding, parseInt(font, 10) + padding);
+
+      ctx.fillStyle = "#009ddf";
+      ctx.fillText(txt, x + padding / 2, y + padding / 2);
     }
 
     // Updateing the files array with new image
@@ -468,15 +494,37 @@ export default function Dropzone({ cookies, siteLang }) {
       const newImage = new Image();
       newImage.src = files[i].URL;
       if (newImage.width > newImage.height) {
-        doc.addPage();
+        doc.addPage([newImage.width, newImage.height], 'l');
         doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
       } else {
-        doc.addPage('w');
+        doc.addPage([newImage.width, newImage.height], 'w');
         doc.addImage(newImage, 'bmp', 0, 0, newImage.width, newImage.height);
       }
     }
     doc.deletePage(1);
-    doc.save("WASMImages.pdf");
+
+    Swal.fire({
+      title: 'Give the name of the PDF',
+      input: 'text',
+      inputAttributes: {
+        autocapitalize: 'off'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'create PDF',
+      showLoaderOnConfirm: true,
+      preConfirm: (pdfName) => {
+        doc.save(`${pdfName}.pdf`);
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "The PDF is done!",
+        })
+      }
+    })
+    //doc.save("WASMImages.pdf");
   }
 
   return (

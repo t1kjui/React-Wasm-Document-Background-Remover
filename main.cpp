@@ -8,12 +8,12 @@
 #include "stb/stb_image_write.h"
 
 extern "C" {
-	int delete_background(char* input_path) {
+	double delete_background(char* input_path) {
 		char* path = input_path;
 		Image img(path);
 		img.DeleteBackground();
 		img.Write("bmp_out.bmp", true);
-		return 1;
+    return img.erasedRatio;
 	}
 }
 
