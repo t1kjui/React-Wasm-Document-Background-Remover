@@ -35,4 +35,3 @@ em++ main.cpp "Bitmap_Vall_Gyak/Greyscale Document Colour Filter/Image.cpp" \
     -O1
 echo "WASM module is built!"
 npm run build
-cp -a ./build/. ./docs/
