@@ -1,6 +1,7 @@
 /*
  * @author: Dávid Attila
  * @date: 2033
+ * Somthing change
  */
 
 // React element imports
@@ -565,6 +566,7 @@ export default function Dropzone({ cookies, siteLang }) {
             id='inputField'
             type="file"
             name="myImage"
+            accept="image/*"
             multiple
             style={{ display: 'none' }}
             onChange={(event) => {
