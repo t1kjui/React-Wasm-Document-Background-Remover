@@ -63,8 +63,8 @@ export default function Dropzone({ cookies, siteLang }) {
       document.getElementById("canvas_wrapper").classList.toggle('expand', true);
       document.getElementById("leftCanvas").classList.toggle('show', true);
 
-      setLeftDisplayedImage(files[0]);
-      drawImage(files[0].URL, "viewport", 1);
+      setLeftDisplayedImage(files[files.length - 1]);
+      drawImage(files[files.length - 1].URL, "viewport", 1);
 
       setDownloadButtonDisabled(false);
       setPrintButtonDisabled(false);
@@ -417,8 +417,6 @@ export default function Dropzone({ cookies, siteLang }) {
       const y = (canvas.height / 2) - (myImage.height / 2) * scale;
 
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
-      //ctx.font = "20pt Calibri";
-      // ctx.fillText(`Megtakarítva:${returnRatio.toFixed(2) * 100}%`, canvas.width / 4, canvas.height - 20);
 
       const txt = `Megtakarítva:${returnRatio.toFixed(2) * 100}%`;
 
@@ -514,7 +512,13 @@ export default function Dropzone({ cookies, siteLang }) {
       confirmButtonText: 'create PDF',
       showLoaderOnConfirm: true,
       preConfirm: (pdfName) => {
-        doc.save(`${pdfName}.pdf`);
+        if (pdfName != "") {
+          console.log(pdfName);
+          doc.save(`${pdfName}.pdf`);
+
+        } else {
+          doc.save("WASM_Images.pdf");
+        }
       },
       allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
@@ -525,7 +529,6 @@ export default function Dropzone({ cookies, siteLang }) {
         })
       }
     })
-    //doc.save("WASMImages.pdf");
   }
 
   return (
