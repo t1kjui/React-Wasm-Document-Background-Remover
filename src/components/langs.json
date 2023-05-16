@@ -4,9 +4,14 @@
                         "home": "Background Remover"
                 },
                 "popup": {
-                        "title": "Fájl formátum nem támogatott!",
-                        "text": "Kizárólag png, jpeg és bmp képek támogatottak az oldalon!",
-                        "footer": "További információkért keresse meg az 'Oldalról' szekciót."
+                        "title": "File format is not supported!",
+                        "text": "Only png, jpeg and bmp images are supported on the site!",
+                        "footer": "For more information check out the 'About' page."
+                },
+                "pdf": {
+                        "title": "Give the name of the PDF",
+                        "confirm": "create PDF",
+                        "success_title": "The PDF is done!"
                 },
                 "title": "Document Background Remover Powered by WASM",
                 "home": "Home",
@@ -18,7 +23,8 @@
                 "delete_bg": "Delete Background",
                 "create_pdf": "Create PDF",
                 "upload_instruction": "Drag and drop images here...",
-                "tooltip": "The background can only be deleted on BMP files!"
+                "tooltip": "The background can only be deleted on BMP files!",
+                "toner_saved": "Toner saved"
         },
         "hu": {
                 "tab": {
@@ -29,8 +35,13 @@
                         "text": "Kizárólag png, jpeg és bmp képek támogatottak az oldalon!",
                         "footer": "További információkért keresse meg az 'Oldalról' szekciót."
                 },
-                "title": "WASM Dokumentum háttéreltávolító",
-                "home": "Otthon",
+                "pdf": {
+                        "title": "Adja meg a PDF nevét!",
+                        "confirm": "PDF generálása",
+                        "success_title": "A PDF készen van!"
+                },
+                        "title": "WASM Dokumentum háttéreltávolító",
+                    "home": "Otthon",
                 "about": "Az oldalról",
                 "lang_button": "Nyelv",
                 "upload": "Feltöltés",
@@ -39,6 +50,7 @@
         "delete_bg": "Háttér eltávolítása",
         "create_pdf": "PDF Generálás",
         "upload_instruction": "Húzz képeket ide...",
-        "tooltip": "A háttér csak BMP fájlokon távolítható el!"
+        "tooltip": "A háttér csak BMP fájlokon távolítható el!",
+        "toner_saved": "Toner megtakarítva"
     }
 }

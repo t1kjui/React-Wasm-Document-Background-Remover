@@ -186,9 +186,9 @@ export default function Dropzone({ cookies, siteLang }) {
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'File format is not supported!',
-          text: 'Only png, jpeg and bmp images are supported on the site!',
-          footer: 'For more information check out the about page'
+          title: langs[siteLang].popup.title,
+          text: langs[siteLang].popup.text,
+          footer: langs[siteLang].popup.text,
         })
 
       }
@@ -418,7 +418,7 @@ export default function Dropzone({ cookies, siteLang }) {
 
       ctx.drawImage(myImage, x, y, myImage.width * scale, myImage.height * scale);
 
-      const txt = `Megtakarítva:${returnRatio.toFixed(2) * 100}%`;
+      const txt = `${langs[siteLang].toner_saved}:${returnRatio.toFixed(2) * 100}%`;
 
       drawTextBG(ctx, txt, "20pt Calibri", canvas.width / 4, canvas.height - 40, 10);
       console.log("Image is drawn");
@@ -503,13 +503,13 @@ export default function Dropzone({ cookies, siteLang }) {
     doc.deletePage(1);
 
     Swal.fire({
-      title: 'Give the name of the PDF',
+      title: langs[siteLang].pdf.title,
       input: 'text',
       inputAttributes: {
         autocapitalize: 'off'
       },
       showCancelButton: true,
-      confirmButtonText: 'create PDF',
+      confirmButtonText: langs[siteLang].pdf.confirm,
       showLoaderOnConfirm: true,
       preConfirm: (pdfName) => {
         if (pdfName != "") {
@@ -525,7 +525,7 @@ export default function Dropzone({ cookies, siteLang }) {
       if (result.isConfirmed) {
         Swal.fire({
           icon: "success",
-          title: "The PDF is done!",
+          title: langs[siteLang].pdf.success_title
         })
       }
     })
