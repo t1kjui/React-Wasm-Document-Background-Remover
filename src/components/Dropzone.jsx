@@ -248,11 +248,8 @@ export default function Dropzone({ cookies, siteLang }) {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       const myImage = new Image();
       myImage.src = leftDisplayedImage.URL;
-      // ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, myImage.width, myImage.height);
 
       const correctionScale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      // const x = (canvas.width / 2) - (myImage.width / 2) * correctionScale;
-      // const y = (canvas.height / 2) - (myImage.height / 2) * correctionScale;
 
       ctx.drawImage(myImage, canMouseX - canvas.width / 2, canMouseY - canvas.height / 2, myImage.width * correctionScale, myImage.height * correctionScale);
 
@@ -274,11 +271,8 @@ export default function Dropzone({ cookies, siteLang }) {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       const myImage = new Image();
       myImage.src = rightDisplayedImage.URL;
-      // ctx.drawImage(myImage, canMouseX - 128 / 2, canMouseY - 120 / 2, myImage.width, myImage.height);
 
       const correctionScale = Math.min(canvas.width / myImage.width, canvas.height / myImage.height);
-      // const x = (canvas.width / 2) - (myImage.width / 2) * correctionScale;
-      // const y = (canvas.height / 2) - (myImage.height / 2) * correctionScale;
 
       ctx.drawImage(myImage, canMouseX - canvas.width / 2, canMouseY - canvas.height / 2, myImage.width * correctionScale, myImage.height * correctionScale);
 
