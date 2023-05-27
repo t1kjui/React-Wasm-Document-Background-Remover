@@ -24,7 +24,14 @@
                 "create_pdf": "Create PDF",
                 "upload_instruction": "Drag and drop images here...",
                 "tooltip": "The background can only be deleted on BMP files!",
-                "toner_saved": "Toner saved"
+                "toner_saved": "Amount of pixels turned white",
+                "about_page": {
+                        "title": "C++ brought to the web with WASM! ⚡",
+                        "supported_types": "Supported image types:",
+                        "text1": "This project is a techonolgy demonstration made as part of a 2023 BSc thesis. \nThe site uses a custom C++ algorithm for detecting and \"deleting\" (turning to white) the backgrounds of document photos using a WebAssembly technology to run completely on client side. This means there is no need for a server to process images and the \"uploaded\" images do not leave the client computer.",
+                        "text2": "Az oldal felhasznáéói felülete React könyvtárral készült míg a C++ WebAssembly modul az Emscripten fordító segítségével. Az webalkalmazás MIT licensz alatt ingyenesen elérhető, az itt bemutatott technikák jó kiinduló pontot adhatnak hasonló React-WASM interakcióra épülő alkalmazások feljlesztésére. ",
+                        "text3": "For furhter infomrations visit the project's github page."
+                }
         },
         "hu": {
                 "tab": {
@@ -40,17 +47,24 @@
                         "confirm": "PDF generálása",
                         "success_title": "A PDF készen van!"
                 },
-                        "title": "WASM Dokumentum háttéreltávolító",
-                    "home": "Otthon",
+                "title": "WASM Dokumentum háttéreltávolító",
+                "home": "Otthon",
                 "about": "Az oldalról",
                 "lang_button": "Nyelv",
                 "upload": "Feltöltés",
                 "download": "Letöltés",
-            "print": "Nyomtatás",
-        "delete_bg": "Háttér eltávolítása",
-        "create_pdf": "PDF Generálás",
-        "upload_instruction": "Húzz képeket ide...",
-        "tooltip": "A háttér csak BMP fájlokon távolítható el!",
-        "toner_saved": "Toner megtakarítva"
-    }
+                "print": "Nyomtatás",
+                "delete_bg": "Háttér eltávolítása",
+                "create_pdf": "PDF Generálás",
+                "upload_instruction": "Húzz képeket ide...",
+                "tooltip": "A háttér csak BMP fájlokon távolítható el!",
+                "toner_saved": "Kifehérített pontok részaránya",
+                "about_page": {
+                        "title": "C++ megérkezett a webre! ⚡",
+                        "supported_types": "Támogatott képformátumok:",
+                        "text1": "Ez a projekt egy technológiai bemutató, amely egy 2023-as BSc szakdolgozat részeként készült. Az oldal egy egyedi C++ algoritmust használ a dokumentumfotók hátterének észlelésére és \"törlésére\" (fehérre váltására) WebAssembly technológia segítségével, hogy az alkalmazás teljes mértékben a kliens oldalon futhasson. Ez azt jelenti, hogy nincs szükség szerverre a képek feldolgozásához, és a \"feltöltött\" képek nem hagyják el az kliens számítógépet.",
+                        "text2": "Az oldal felhasználói felülete React könyvtárral készült míg a C++ WebAssembly modul az Emscripten fordító segítségével. Az webalkalmazás MIT licensz alatt ingyenesen elérhető, az itt bemutatott technikák jó kiinduló pontot adhatnak hasonló React-WASM interakcióra épülő alkalmazások feljlesztésére. ",
+                        "text3": "További információkért látogasd meg a projekt github oldalát."
+                }
+        }
 }

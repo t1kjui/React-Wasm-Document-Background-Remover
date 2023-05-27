@@ -7,3 +7,22 @@
     background: silver;
     border-radius: 30px;
 }
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.heading {
+    display: flex;
+}
+
+.footer {
+    font-size: 10pt;
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding-top: 20px;
+}

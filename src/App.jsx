@@ -91,7 +91,7 @@ export default function App() {
 
         <Routes>
           <Route exact path="/" element={<Dropzone cookies={cookies} siteLang={siteLang} />} />
-          <Route exact path="/about" element={<About />} />
+          <Route exact path="/about" element={<About siteLang={siteLang} />} />
         </Routes>
       </CookiesProvider>
     </BrowserRouter>

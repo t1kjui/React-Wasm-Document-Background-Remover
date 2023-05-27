@@ -414,7 +414,7 @@ export default function Dropzone({ cookies, siteLang }) {
 
       const txt = `${langs[siteLang].toner_saved}:${returnRatio.toFixed(2) * 100}%`;
 
-      drawTextBG(ctx, txt, "20pt Calibri", canvas.width / 4, canvas.height - 40, 10);
+      drawTextBG(ctx, txt, "16pt Calibri", canvas.width / 4, canvas.height - 40, 10);
       console.log("Image is drawn");
     }
 
