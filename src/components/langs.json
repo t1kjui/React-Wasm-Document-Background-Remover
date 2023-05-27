@@ -29,7 +29,7 @@
                         "title": "C++ brought to the web with WASM! ⚡",
                         "supported_types": "Supported image types:",
                         "text1": "This project is a techonolgy demonstration made as part of a 2023 BSc thesis. \nThe site uses a custom C++ algorithm for detecting and \"deleting\" (turning to white) the backgrounds of document photos using a WebAssembly technology to run completely on client side. This means there is no need for a server to process images and the \"uploaded\" images do not leave the client computer.",
-                        "text2": "Az oldal felhasznáéói felülete React könyvtárral készült míg a C++ WebAssembly modul az Emscripten fordító segítségével. Az webalkalmazás MIT licensz alatt ingyenesen elérhető, az itt bemutatott technikák jó kiinduló pontot adhatnak hasonló React-WASM interakcióra épülő alkalmazások feljlesztésére. ",
+                        "text2": "The site's user interface was created with the React library, while the C++ WebAssembly module was created using the Emscripten compiler. The web application is available for free under the MIT license, the presented here can provide a good starting point for the development of similar applications based on React-WASM interaction. ",
                         "text3": "For furhter infomrations visit the project's github page."
                 }
         },

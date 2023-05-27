@@ -1,3 +1,8 @@
+/*
+ * @author: Dávid Attila
+ * @date: 2023
+ */
+
 import React from "react"
 import ImageCard from "./ImageCard"
 import { v4 as uuidv4 } from "uuid"

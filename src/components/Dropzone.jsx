@@ -1,7 +1,6 @@
 /*
  * @author: Dávid Attila
- * @date: 2033
- * Somthing change
+ * @date: 2023
  */
 
 // React element imports
